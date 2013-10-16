@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.IBinder;
+import com.squareup.tape.Task;
 import org.sunshinelibrary.turtle.TurtleManagers;
 import org.sunshinelibrary.turtle.models.DeleteTask;
 import org.sunshinelibrary.turtle.models.DownloadTask;
@@ -12,7 +13,6 @@ import org.sunshinelibrary.turtle.models.WebApp;
 import org.sunshinelibrary.turtle.utils.Diff;
 import org.sunshinelibrary.turtle.utils.DiffManifest;
 import org.sunshinelibrary.turtle.utils.Logger;
-import com.squareup.tape.Task;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +72,7 @@ public class AppSyncService extends Service {
 
             // do it one by one
             Queue<Task> tasks = TurtleManagers.taskManager.getAllTask();
-            int total= 0;
+            int total = 0;
             while (true) {
                 Task task = tasks.peek();
                 total++;

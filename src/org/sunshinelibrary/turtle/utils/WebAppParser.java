@@ -1,12 +1,13 @@
 package org.sunshinelibrary.turtle.utils;
 
+import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 import org.sunshinelibrary.turtle.appmanager.WebAppException;
 import org.sunshinelibrary.turtle.models.WebApp;
-import com.google.gson.Gson;
-import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -42,12 +43,17 @@ public class WebAppParser {
                 String entryName = entry.getName();
                 if ("manifest.json".equals(entryName)) {
                     String manifest = IOUtils.toString(zis, "UTF8");
-                    ret = new Gson().fromJson(manifest, WebApp.class);
+                    ret = new WebApp(new JSONObject(manifest));
                     break;
                 }
             }
             zis.close();
         } catch (Exception e) {
+            try {
+                zis.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
             throw new WebAppException(e);
         }
         return ret;

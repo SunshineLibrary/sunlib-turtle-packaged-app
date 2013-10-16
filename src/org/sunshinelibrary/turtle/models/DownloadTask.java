@@ -1,15 +1,15 @@
 package org.sunshinelibrary.turtle.models;
 
 import android.content.Context;
-import android.content.Intent;
 import android.text.TextUtils;
+import com.squareup.tape.Task;
+import org.apache.commons.io.FileUtils;
 import org.sunshinelibrary.turtle.TurtleManagers;
 import org.sunshinelibrary.turtle.appmanager.WebAppException;
 import org.sunshinelibrary.turtle.utils.Logger;
-import org.sunshinelibrary.turtle.webservice.RestletWebService;
-import com.squareup.tape.Task;
 
 import java.io.File;
+import java.net.URL;
 
 /**
  * User: fxp
@@ -28,21 +28,20 @@ public class DownloadTask implements Task<Context> {
         // TODO implement this
         Logger.i("download this app start," + app);
         String appId = null;
+        File tmpFile = null;
         try {
             // Download the app to temp directory
-            // TODO change to downloaded zip file
-            File zipFile = new File("/sdcard/1.zip");
+            tmpFile = File.createTempFile("turtle_", ".tmp");
+            URL url = new URL(app.download_url);
+            FileUtils.copyURLToFile(url, tmpFile);
+            File zipFile = tmpFile;
 
             // Add to AppManager
             WebApp app = TurtleManagers.appManager.installApp(context, zipFile);
             appId = app.getId();
-
-            Intent intent = new Intent(context, RestletWebService.class);
-            intent.setAction("install app");
-            context.startService(intent);
-
         } catch (Exception e) {
             // TODO to print a brief error, and clean up
+            Logger.e("download task failed," + e.getMessage());
             e.printStackTrace();
             if (!TextUtils.isEmpty(appId)) {
                 try {
@@ -52,7 +51,7 @@ public class DownloadTask implements Task<Context> {
                 }
             }
         }
-        Logger.i("download this app complete," + app);
+        Logger.i("download task complete," + app);
     }
 
 }

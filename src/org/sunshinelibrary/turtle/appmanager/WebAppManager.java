@@ -72,7 +72,7 @@ public class WebAppManager implements AppManager {
             appFolder = new File(Configurations.getAppBase(), newApp.getId());
             FileUtils.deleteDirectory(appFolder);
             appFolder.mkdir();
-            ZipUtils.unzipFiles(appFile, appFolder);
+            ZipUtils.unzip(appFile, appFolder);
 
             apps.put(newApp.getId(), newApp);
             Logger.i("install app complete," + appFile);

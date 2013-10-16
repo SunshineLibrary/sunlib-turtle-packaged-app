@@ -103,7 +103,7 @@ public class RestletWebService extends Service implements WebService {
                 Restlet() {
                     @Override
                     public void handle(Request request, Response response) {
-                        TurtleManagers.appManager.refresh();
+//                        TurtleManagers.appManager.refresh();
                         String ret = null;
                         final Form queryForm = request.getResourceRef().getQueryAsForm();
                         final Set<String> filterKeys = queryForm.getNames();
