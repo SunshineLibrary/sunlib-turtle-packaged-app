@@ -32,6 +32,16 @@ public class WebApp {
         this.manifest = manifest;
     }
 
+    public int getVersionCode() {
+        int ret = -1;
+        try {
+            ret = manifest.getInt("version_code");
+        } catch (JSONException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        return ret;
+    }
+
     public String getId() {
         String ret = null;
         try {

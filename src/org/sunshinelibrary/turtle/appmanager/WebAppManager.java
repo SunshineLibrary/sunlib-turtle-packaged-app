@@ -68,6 +68,10 @@ public class WebAppManager implements AppManager {
                 Logger.i("app already exists," + appId);
                 return apps.get(appId);
             }
+            if (apps.get(appId).getVersionCode() > newApp.getVersionCode()) {
+                Logger.i("local app is newer than new app," + appFile.getAbsolutePath());
+                return apps.get(appId);
+            }
 
             appFolder = new File(Configurations.getAppBase(), newApp.getId());
             FileUtils.deleteDirectory(appFolder);
