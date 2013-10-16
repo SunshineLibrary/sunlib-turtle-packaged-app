@@ -20,7 +20,13 @@ public class WebApp {
 //    public String url;
 //    public String home;
     // the whole manifest.json in app zip
+
+    public String download_url;
     public JSONObject manifest;
+
+    public WebApp(String download_url) {
+        this.download_url = download_url;
+    }
 
     public WebApp(JSONObject manifest) {
         this.manifest = manifest;

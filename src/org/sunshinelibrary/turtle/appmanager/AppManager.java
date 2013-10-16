@@ -6,6 +6,7 @@ import org.sunshinelibrary.turtle.models.WebApp;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * User: fxp
@@ -15,6 +16,8 @@ import java.util.List;
 public interface AppManager {
 
     public Collection<WebApp> getAllApps();
+
+    public Map<String,WebApp> getAppsMap();
 
     public void removeAllApps();
 

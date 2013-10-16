@@ -1,17 +1,16 @@
 package org.sunshinelibrary.turtle.appmanager;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.SystemClock;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.sunshinelibrary.turtle.models.WebApp;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Logger;
 import org.sunshinelibrary.turtle.utils.WebAppParser;
-import org.sunshinelibrary.turtle.webservice.RestletWebService;
+import org.sunshinelibrary.turtle.utils.ZipUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +28,11 @@ public class WebAppManager implements AppManager {
     @Override
     public Collection<WebApp> getAllApps() {
         return apps.values();
+    }
+
+    @Override
+    public Map<String, WebApp> getAppsMap() {
+        return apps;
     }
 
     @Override
@@ -56,19 +60,35 @@ public class WebAppManager implements AppManager {
         Logger.i("install app start," + appFile);
 
         WebApp newApp = null;
-        // Generate this app
+        File appFolder = null;
         try {
             newApp = WebAppParser.parse(appFile);
-            // TODO unzip this zip to apps folder
+            String appId = newApp.getId();
+            if (apps.containsKey(appId)) {
+                Logger.i("app already exists," + appId);
+                return apps.get(appId);
+            }
+
+            appFolder = new File(Configurations.getAppBase(), newApp.getId());
+            FileUtils.deleteDirectory(appFolder);
+            appFolder.mkdir();
+            ZipUtils.unzipFiles(appFile, appFolder);
 
             apps.put(newApp.getId(), newApp);
-            // Notify server to refresh app
+            Logger.i("install app complete," + appFile);
         } catch (Exception e) {
             e.printStackTrace();
+            if (appFolder != null) {
+                try {
+                    Logger.e("install file failed, delete unzipped folder");
+                    FileUtils.deleteDirectory(appFolder);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            throw new WebAppException("install app failed," + e.getMessage());
         }
 
-        SystemClock.sleep(3000);
-        Logger.i("install app complete," + appFile);
         return newApp;
     }
 
@@ -76,11 +96,9 @@ public class WebAppManager implements AppManager {
     public void uninstallApp(Context context, String id) throws WebAppException {
         // Notify server to refresh app
         if (apps.containsKey(id)) {
+            // TODO Delete all apps
             apps.remove(id);
             Logger.i("remove app," + id);
-            Intent intent = new Intent(context, RestletWebService.class);
-            intent.setAction("uninstall app");
-            context.startActivity(intent);
         } else {
             Logger.i("app not exists," + id);
         }
