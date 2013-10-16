@@ -1,0 +1,56 @@
+package org.sunshinelibrary.turtle.utils;
+
+import org.sunshinelibrary.turtle.appmanager.WebAppException;
+import org.sunshinelibrary.turtle.models.WebApp;
+import com.google.gson.Gson;
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+/**
+ * User: fxp
+ * Date: 10/14/13
+ * Time: 5:47 PM
+ */
+public class WebAppParser {
+
+    public static WebApp parse(String filePath) throws WebAppException {
+        return parse(filePath);
+    }
+
+    public static WebApp parse(File file) throws WebAppException {
+        WebApp ret = null;
+        try {
+            ret = WebAppParser.parse(new ZipInputStream(new FileInputStream(file)));
+        } catch (Exception e) {
+            throw new WebAppException(e);
+        }
+        return ret;
+    }
+
+    public static WebApp parse(ZipInputStream zis) throws WebAppException {
+        if (zis == null) {
+            throw new WebAppException("zip input stream is null");
+        }
+        WebApp ret = null;
+        ZipEntry entry;
+        try {
+            while ((entry = zis.getNextEntry()) != null) {
+                String entryName = entry.getName();
+                if ("manifest.json".equals(entryName)) {
+                    String manifest = IOUtils.toString(zis, "UTF8");
+                    ret = new Gson().fromJson(manifest, WebApp.class);
+                    break;
+                }
+            }
+            zis.close();
+        } catch (Exception e) {
+            throw new WebAppException(e);
+        }
+        return ret;
+    }
+
+}

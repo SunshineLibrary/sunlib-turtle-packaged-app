@@ -1,0 +1,101 @@
+package org.sunshinelibrary.turtle.userdatamanager;
+
+import android.text.TextUtils;
+import org.sunshinelibrary.turtle.utils.GsonConverter;
+import org.sunshinelibrary.turtle.utils.Logger;
+import com.google.gson.Gson;
+import com.squareup.tape.FileObjectQueue;
+import org.apache.commons.codec.binary.Base32;
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * User: fxp
+ * Date: 10/16/13
+ * Time: 12:09 PM
+ */
+public class TapeUserDataManager implements UserDataManager {
+
+    public UserDataTaskQueue userDataQueue;
+    private File userDataFolder = null;
+
+    public TapeUserDataManager() throws IOException {
+        FileObjectQueue.Converter<UserDataTask> converter
+                = new GsonConverter<UserDataTask>(new Gson(), UserDataTask.class);
+        userDataQueue = new UserDataTaskQueue(
+                new FileObjectQueue<UserDataTask>(
+                        new File("/sdcard/webapps/userdatatask.db"), converter)
+        );
+        userDataFolder = new File("/sdcard/webapps/userdata");
+        userDataFolder.mkdirs();
+        if (!userDataFolder.canWrite()) {
+            throw new IOException("userdata folder cannot write");
+        }
+    }
+
+    public static String getUserDataId(String key) {
+//        return (TextUtils.isEmpty(key)) ? null : String.valueOf(key.hashCode());
+
+        return (TextUtils.isEmpty(key)) ? null : new Base32().encodeAsString(key.getBytes());
+    }
+
+    @Override
+    public void sendData(String id, String content) {
+        if (TextUtils.isEmpty(id) || TextUtils.isEmpty(content)) {
+            Logger.i("post userdata cannot be empty," + id + "," + content);
+            return;
+        }
+        String cacheID = getUserDataId(id);
+        Logger.i("cached," + cacheID + "," + content);
+        try {
+            FileUtils.writeStringToFile(
+                    new File(userDataFolder, cacheID),
+                    content
+            );
+            userDataQueue.add(new UserDataTask(id, content));
+        } catch (IOException e) {
+            Logger.e("write user data failed," + cacheID + "," + content);
+        }
+    }
+
+    @Override
+    public String getData(String id) {
+        String ret = "{}";
+        if (TextUtils.isEmpty(id)) {
+            Logger.i("get userdata empty id," + id);
+            return ret;
+        }
+        String cacheID = getUserDataId(id);
+        try {
+            File dataFile = new File(userDataFolder, cacheID);
+            if (!dataFile.exists()) {
+                Logger.v("user data not exists");
+            } else {
+                ret = FileUtils.readFileToString(dataFile);
+            }
+        } catch (IOException e) {
+            Logger.e("read user data failed," + id);
+        }
+        return ret;
+    }
+
+    @Override
+    public Map<String, String> getAll() {
+        Map<String, String> ret = new HashMap<String, String>();
+        File[] files = userDataFolder.listFiles();
+        for (File file : files) {
+            try {
+                String key = new String(new Base32().decode(file.getName().getBytes()));
+                ret.put(key, FileUtils.readFileToString(file));
+            } catch (IOException e) {
+                e.printStackTrace();
+                Logger.e("read userdata file failed");
+            }
+        }
+        return ret;
+    }
+}
