@@ -14,4 +14,5 @@ public interface UserDataManager {
     public String getData(String id);
 
     public Map<String, String> getAll();
+
 }

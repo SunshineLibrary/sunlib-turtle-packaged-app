@@ -14,9 +14,13 @@ import java.util.List;
  */
 public interface AppManager {
 
-    public String getAppsDir();
-
     public Collection<WebApp> getAllApps();
+
+    public void removeAllApps();
+
+    public void refresh();
+
+    public boolean containsApp(String id);
 
     public List<WebApp> getApps(List<WebAppQuery> queries);
 

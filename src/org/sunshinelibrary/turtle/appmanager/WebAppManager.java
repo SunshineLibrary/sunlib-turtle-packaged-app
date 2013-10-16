@@ -3,7 +3,10 @@ package org.sunshinelibrary.turtle.appmanager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
+import org.apache.commons.io.FileUtils;
+import org.json.JSONObject;
 import org.sunshinelibrary.turtle.models.WebApp;
+import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Logger;
 import org.sunshinelibrary.turtle.utils.WebAppParser;
 import org.sunshinelibrary.turtle.webservice.RestletWebService;
@@ -24,13 +27,18 @@ public class WebAppManager implements AppManager {
     Map<String, WebApp> apps = new ConcurrentHashMap<String, WebApp>();
 
     @Override
-    public String getAppsDir() {
-        return "/sdcard/webapps/";
+    public Collection<WebApp> getAllApps() {
+        return apps.values();
     }
 
     @Override
-    public Collection<WebApp> getAllApps() {
-        return apps.values();
+    public void removeAllApps() {
+        apps.clear();
+    }
+
+    @Override
+    public boolean containsApp(String id) {
+        return apps.containsKey(id);
     }
 
     @Override
@@ -53,7 +61,7 @@ public class WebAppManager implements AppManager {
             newApp = WebAppParser.parse(appFile);
             // TODO unzip this zip to apps folder
 
-            apps.put(newApp.id, newApp);
+            apps.put(newApp.getId(), newApp);
             // Notify server to refresh app
         } catch (Exception e) {
             e.printStackTrace();
@@ -77,4 +85,28 @@ public class WebAppManager implements AppManager {
             Logger.i("app not exists," + id);
         }
     }
+
+    public void refresh() {
+        String appFolderPath = Configurations.getAppBase();
+        File[] appFolders = new File(appFolderPath).listFiles();
+        if (appFolders == null) {
+            Logger.i("no app in app folder," + appFolderPath);
+            return;
+        }
+        for (File appFolder : appFolders) {
+            if (!appFolder.isDirectory()) {
+                continue;
+            }
+            try {
+                String manifest = FileUtils.readFileToString(new File(appFolder, "manifest.json"));
+                JSONObject manifestObj = new JSONObject(manifest);
+                Logger.i("app loaded," + manifestObj.toString());
+                apps.put(manifestObj.getString("id"), new WebApp(manifestObj));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
 }

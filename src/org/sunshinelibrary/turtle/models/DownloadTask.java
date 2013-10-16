@@ -35,7 +35,7 @@ public class DownloadTask implements Task<Context> {
 
             // Add to AppManager
             WebApp app = TurtleManagers.appManager.installApp(context, zipFile);
-            appId = app.id;
+            appId = app.getId();
 
             Intent intent = new Intent(context, RestletWebService.class);
             intent.setAction("install app");

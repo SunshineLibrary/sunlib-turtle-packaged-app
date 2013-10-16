@@ -1,6 +1,7 @@
 package org.sunshinelibrary.turtle.models;
 
-import com.google.gson.JsonObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * User: fxp
@@ -9,15 +10,29 @@ import com.google.gson.JsonObject;
  */
 public class WebApp {
 
-    public String localFolder;
+//    public String localFolder;
     /**
      * TODO Delete all unnecessary fields
      */
 
-    public String id;
-    public int version_code;
-    public String url;
-    public String home;
+//    public String id;
+//    public int version_code;
+//    public String url;
+//    public String home;
     // the whole manifest.json in app zip
-    public JsonObject manifest;
+    public JSONObject manifest;
+
+    public WebApp(JSONObject manifest) {
+        this.manifest = manifest;
+    }
+
+    public String getId() {
+        String ret = null;
+        try {
+            ret = manifest.getString("id");
+        } catch (JSONException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        return ret;
+    }
 }

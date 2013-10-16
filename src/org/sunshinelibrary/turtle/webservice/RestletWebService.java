@@ -4,12 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import com.android.internal.util.Predicate;
-import org.sunshinelibrary.turtle.TurtleManagers;
-import org.sunshinelibrary.turtle.models.WebApp;
-import org.sunshinelibrary.turtle.utils.Configurations;
-import org.sunshinelibrary.turtle.utils.Logger;
 import com.google.gson.Gson;
-import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.restlet.*;
 import org.restlet.data.Form;
@@ -19,8 +14,11 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
 import org.restlet.routing.Template;
+import org.sunshinelibrary.turtle.TurtleManagers;
+import org.sunshinelibrary.turtle.models.WebApp;
+import org.sunshinelibrary.turtle.utils.Configurations;
+import org.sunshinelibrary.turtle.utils.Logger;
 
-import java.io.File;
 import java.util.*;
 
 
@@ -31,7 +29,6 @@ import java.util.*;
  */
 public class RestletWebService extends Service implements WebService {
 
-    public static List<JSONObject> APPS;
 
     public static <T> Collection<T> filter(Collection<T> target, Predicate<T> predicate) {
         Collection<T> result = new ArrayList<T>();
@@ -45,38 +42,15 @@ public class RestletWebService extends Service implements WebService {
 
     @Override
     public void attachApp(WebApp app) {
-        initApps();
     }
 
     @Override
     public void detachApp(String id) {
-        initApps();
     }
 
     @Override
     public List<WebApp> getAllApps() {
         return null;
-    }
-
-    public void initApps() {
-        String appFolderPath = TurtleManagers.appManager.getAppsDir();
-        File[] appFolders = new File(appFolderPath).listFiles();
-        if (appFolders == null) {
-            Logger.i("no app in app folder," + appFolderPath);
-            return;
-        }
-        APPS = new ArrayList<JSONObject>();
-        for (File appFolder : appFolders) {
-            try {
-                String manifest = FileUtils.readFileToString(new File(appFolder, "manifest.json"));
-                JSONObject manifestObj = new JSONObject(manifest);
-                manifestObj.put("local_folder", appFolder.getAbsolutePath());
-                APPS.add(manifestObj);
-                Logger.i("app loaded," + manifestObj.toString());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     @Override
@@ -85,8 +59,6 @@ public class RestletWebService extends Service implements WebService {
         // start the server
         // bind "/" to app with id==0
         // Setup a new instance
-
-        initApps();
 
         // start server
         Component component = new Component();
@@ -131,7 +103,7 @@ public class RestletWebService extends Service implements WebService {
                 Restlet() {
                     @Override
                     public void handle(Request request, Response response) {
-                        initApps();
+                        TurtleManagers.appManager.refresh();
                         String ret = null;
                         final Form queryForm = request.getResourceRef().getQueryAsForm();
                         final Set<String> filterKeys = queryForm.getNames();
@@ -140,13 +112,15 @@ public class RestletWebService extends Service implements WebService {
                             String[] conditions = queryForm.getValuesArray(key);
                             filterMap.put(key, Arrays.asList(conditions));
                         }
-                        Predicate<JSONObject> isAuthorized = new Predicate<JSONObject>() {
-                            public boolean apply(JSONObject user) {
+                        Collection<WebApp> apps = TurtleManagers.appManager.getAllApps();
+
+                        Predicate<WebApp> isFiltered = new Predicate<WebApp>() {
+                            public boolean apply(WebApp app) {
                                 boolean ret = true;
                                 try {
                                     for (String key : filterKeys) {
                                         List<String> conditionsFilter = filterMap.get(key);
-                                        if (!user.has(key) || !conditionsFilter.contains(user.getString(key))) {
+                                        if (!app.manifest.has(key) || !conditionsFilter.contains(app.manifest.getString(key))) {
                                             ret = false;
                                             break;
                                         }
@@ -157,15 +131,19 @@ public class RestletWebService extends Service implements WebService {
                                 return ret;
                             }
                         };
-                        ret = filter(APPS, isAuthorized).toString();
-                        response.setEntity(new StringRepresentation(ret));
+                        List<JSONObject> result = new ArrayList<JSONObject>();
+                        Collection<WebApp> filtered = filter(apps, isFiltered);
+                        for (WebApp app : filtered) {
+                            result.add(app.manifest);
+                        }
+                        response.setEntity(new StringRepresentation(result.toString()));
                     }
                 });
 
         Application application = new SimpleApplication(router);
 
         // serve all app folder
-        component.getDefaultHost().attach("/app/", new FileApplication("file://"+ Configurations.getAppBase()));
+        component.getDefaultHost().attach("/app/", new FileApplication("file://" + Configurations.getAppBase()));
         component.getDefaultHost().attach("", application);
         try {
             component.start();
@@ -202,7 +180,7 @@ public class RestletWebService extends Service implements WebService {
         }
 
         public String getRunningApps() {
-            return new Gson().toJson(APPS);
+            return new Gson().toJson(TurtleManagers.appManager.getAllApps());
         }
 
         public String getAllUserData() {
