@@ -26,15 +26,6 @@ public class MainActivity extends Activity {
         findViewById(R.id.button).setOnClickListener(new AddClick());
         findViewById(R.id.button1).setOnClickListener(new QueryClick());
 
-        try {
-            TurtleManagers.init();
-        } catch (Exception e) {
-            Logger.e("manager not initialized correct");
-            e.printStackTrace();
-
-            // TODO force close application
-            throw new RuntimeException();
-        }
         startIntervalAlarm();
     }
 

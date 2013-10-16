@@ -15,12 +15,11 @@ public class WebApp {
      * TODO Delete all unnecessary fields
      */
 
-//    public String id;
-//    public int version_code;
-//    public String url;
+    public String id;
+    public int version_code;
+    //    public String url;
 //    public String home;
     // the whole manifest.json in app zip
-
     public String download_url;
     public JSONObject manifest;
 
@@ -28,8 +27,10 @@ public class WebApp {
         this.download_url = download_url;
     }
 
-    public WebApp(JSONObject manifest) {
+    public WebApp(JSONObject manifest) throws JSONException {
         this.manifest = manifest;
+        this.id = manifest.getString("id");
+        this.version_code = manifest.getInt("version_code");
     }
 
     public int getVersionCode() {

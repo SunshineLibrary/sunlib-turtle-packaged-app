@@ -1,6 +1,7 @@
 package org.sunshinelibrary.turtle.appmanager;
 
 import android.content.Context;
+import android.text.TextUtils;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.sunshinelibrary.turtle.models.WebApp;
@@ -59,26 +60,36 @@ public class WebAppManager implements AppManager {
     public WebApp installApp(Context context, File appFile) throws WebAppException {
         Logger.i("install app start," + appFile);
 
+        // TODO Clean up all temp files
         WebApp newApp = null;
         File appFolder = null;
         try {
             newApp = WebAppParser.parse(appFile);
             String appId = newApp.getId();
-            if (apps.containsKey(appId)) {
-                Logger.i("app already exists," + appId);
-                return apps.get(appId);
+            if (TextUtils.isEmpty(appId)) {
+                throw new WebAppException("webapp id is null," + appFile.getAbsolutePath());
             }
-            if (apps.get(appId).getVersionCode() > newApp.getVersionCode()) {
-                Logger.i("local app is newer than new app," + appFile.getAbsolutePath());
-                return apps.get(appId);
-            }
-
             appFolder = new File(Configurations.getAppBase(), newApp.getId());
-            FileUtils.deleteDirectory(appFolder);
-            appFolder.mkdir();
-            ZipUtils.unzip(appFile, appFolder);
-
-            apps.put(newApp.getId(), newApp);
+            if (apps.containsKey(appId)) {
+                if (apps.get(appId).getVersionCode() >= newApp.getVersionCode()) {
+                    Logger.i("local app already exists, or newer than server app," + appFile.getAbsolutePath());
+                    return apps.get(appId);
+                } else {
+                    Logger.i("app need update," + appId);
+                    apps.remove(appId);
+                    File tmpFolder = FileUtils.getTempDirectory();
+                    ZipUtils.unzip(appFile, tmpFolder);
+                    FileUtils.deleteDirectory(appFolder);
+                    appFolder.mkdirs();
+                    FileUtils.moveDirectory(tmpFolder, appFolder);
+                    apps.put(newApp.getId(), newApp);
+                }
+            } else {
+                FileUtils.deleteDirectory(appFolder);
+                appFolder.mkdir();
+                ZipUtils.unzip(appFile, appFolder);
+                apps.put(newApp.getId(), newApp);
+            }
             Logger.i("install app complete," + appFile);
         } catch (Exception e) {
             e.printStackTrace();

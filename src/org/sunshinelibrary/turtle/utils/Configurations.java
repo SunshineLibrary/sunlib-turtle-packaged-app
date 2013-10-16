@@ -10,6 +10,7 @@ import java.io.File;
 public class Configurations {
 
     public static final String storageBase = "/sdcard/webapps";
+    public static String serverHost = "http://192.168.1.10:3000";
 
     public static void init() {
         boolean success = false;
@@ -22,6 +23,17 @@ public class Configurations {
         Logger.i("create meta base," + success);
         success = new File(getUserDataBase()).mkdirs();
         Logger.i("create userdata base," + success);
+    }
+
+    public static String getServerHost() {
+        return serverHost;
+    }
+
+    public static String getSunlibAPI(SunAPI api) {
+        if (SunAPI.APPSJSON.equals(api)) {
+            return serverHost + "/apps.json";
+        }
+        return null;
     }
 
     public static String getStorageBase() {
@@ -42,6 +54,10 @@ public class Configurations {
 
     public static String getUserDataBase() {
         return getStorageBase() + "/userdata";
+    }
+
+    public static enum SunAPI {
+        APPSJSON;
     }
 
 

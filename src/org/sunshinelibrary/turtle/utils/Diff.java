@@ -16,6 +16,10 @@ public class Diff {
         // TODO Calculate different parts
         DiffManifest manifest = new DiffManifest();
         manifest.newApps = new ArrayList<WebApp>();
+
+
+
+
         manifest.newApps.add(new WebApp("http://192.168.3.16:3000/dl/0.2.zip"));
 //        manifest.newApps.add(new WebApp(""));
 //        manifest.newApps.add(new WebApp(""));
