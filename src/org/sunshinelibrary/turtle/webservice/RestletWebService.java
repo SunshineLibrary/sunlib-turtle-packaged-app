@@ -6,6 +6,7 @@ import android.os.IBinder;
 import com.android.internal.util.Predicate;
 import org.sunshinelibrary.turtle.TurtleManagers;
 import org.sunshinelibrary.turtle.models.WebApp;
+import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Logger;
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
@@ -164,7 +165,7 @@ public class RestletWebService extends Service implements WebService {
         Application application = new SimpleApplication(router);
 
         // serve all app folder
-        component.getDefaultHost().attach("/app/", new FileApplication("file:///sdcard/webapps/"));
+        component.getDefaultHost().attach("/app/", new FileApplication("file://"+ Configurations.getAppBase()));
         component.getDefaultHost().attach("", application);
         try {
             component.start();

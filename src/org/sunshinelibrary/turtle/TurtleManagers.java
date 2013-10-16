@@ -6,6 +6,7 @@ import org.sunshinelibrary.turtle.taskmanager.SyncTaskManager;
 import org.sunshinelibrary.turtle.taskmanager.TaskManager;
 import org.sunshinelibrary.turtle.userdatamanager.TapeUserDataManager;
 import org.sunshinelibrary.turtle.userdatamanager.UserDataManager;
+import org.sunshinelibrary.turtle.utils.Configurations;
 
 /**
  * User: fxp
@@ -17,7 +18,8 @@ public class TurtleManagers {
     public static TaskManager taskManager;
     public static UserDataManager userDataManager;
 
-    public static void init() throws Exception{
+    public static void init() throws Exception {
+        Configurations.init();
         appManager = new WebAppManager();
         taskManager = new SyncTaskManager();
         userDataManager = new TapeUserDataManager();
