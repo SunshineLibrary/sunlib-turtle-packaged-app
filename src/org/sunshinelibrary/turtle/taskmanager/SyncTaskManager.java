@@ -1,7 +1,5 @@
 package org.sunshinelibrary.turtle.taskmanager;
 
-import com.squareup.tape.Task;
-
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -12,10 +10,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class SyncTaskManager implements TaskManager {
 
-    ConcurrentLinkedQueue<Task> tasks = new ConcurrentLinkedQueue<Task>();
+    ConcurrentLinkedQueue<TaskWithResult> tasks = new ConcurrentLinkedQueue<TaskWithResult>();
 
     @Override
-    public void addTask(Task task) {
+    public void addTask(TaskWithResult task) {
         tasks.add(task);
     }
 
@@ -25,7 +23,7 @@ public class SyncTaskManager implements TaskManager {
     }
 
     @Override
-    public Queue<Task> getAllTask() {
+    public Queue<TaskWithResult> getAllTask() {
         return tasks;
     }
 }

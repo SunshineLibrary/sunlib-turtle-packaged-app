@@ -23,10 +23,6 @@ public class WebApp {
     public String download_url;
     public JSONObject manifest;
 
-    public WebApp(String download_url) {
-        this.download_url = download_url;
-    }
-
     public WebApp(JSONObject manifest) throws JSONException {
         this.manifest = manifest;
         this.id = manifest.getString("id");
@@ -36,7 +32,11 @@ public class WebApp {
     public int getVersionCode() {
         int ret = -1;
         try {
-            ret = manifest.getInt("version_code");
+            if (manifest != null) {
+                ret = manifest.getInt("version_code");
+            } else {
+                ret = version_code;
+            }
         } catch (JSONException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
@@ -46,10 +46,33 @@ public class WebApp {
     public String getId() {
         String ret = null;
         try {
-            ret = manifest.getString("id");
+            if (manifest != null) {
+                ret = manifest.getString("id");
+            } else {
+                ret = id;
+            }
         } catch (JSONException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
         return ret;
+    }
+
+    private String getUniqId() {
+        return id + "." + version_code;
+    }
+
+    @Override
+    public int hashCode() {
+        return getUniqId().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return (!o.getClass().equals(WebApp.class)) && (o.hashCode() == this.hashCode());
+    }
+
+    @Override
+    public String toString() {
+        return getUniqId();
     }
 }

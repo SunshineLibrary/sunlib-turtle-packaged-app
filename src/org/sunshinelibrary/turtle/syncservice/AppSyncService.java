@@ -7,12 +7,12 @@ import android.os.AsyncTask;
 import android.os.IBinder;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.squareup.tape.Task;
 import org.apache.commons.io.IOUtils;
 import org.sunshinelibrary.turtle.TurtleManagers;
-import org.sunshinelibrary.turtle.models.DeleteTask;
-import org.sunshinelibrary.turtle.models.DownloadTask;
 import org.sunshinelibrary.turtle.models.WebApp;
+import org.sunshinelibrary.turtle.taskmanager.DeleteTask;
+import org.sunshinelibrary.turtle.taskmanager.DownloadTask;
+import org.sunshinelibrary.turtle.taskmanager.TaskWithResult;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Diff;
 import org.sunshinelibrary.turtle.utils.DiffManifest;
@@ -21,8 +21,9 @@ import org.sunshinelibrary.turtle.utils.Logger;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 /**
@@ -56,8 +57,8 @@ public class AppSyncService extends Service {
 
     public static class SyncTask extends AsyncTask<Void, Integer, Integer> {
 
-        public List<WebApp> getRemoteApps() {
-            List<WebApp> ret = null;
+        public Map<String, WebApp> getRemoteApps() {
+            Map<String, WebApp> ret = new HashMap<String, WebApp>();
             HttpURLConnection urlConnection = null;
             try {
                 URL url = new URL(Configurations.getSunlibAPI(Configurations.SunAPI.APPSJSON));
@@ -65,7 +66,10 @@ public class AppSyncService extends Service {
                 String manifest = IOUtils.toString(urlConnection.getInputStream());
                 Type type = new TypeToken<List<WebApp>>() {
                 }.getType();
-                ret = new Gson().fromJson(manifest, type);
+                List<WebApp> remoteApps = new Gson().fromJson(manifest, type);
+                for (WebApp app : remoteApps) {
+                    ret.put(app.getId(), app);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -83,7 +87,7 @@ public class AppSyncService extends Service {
             Logger.i("SyncTask start");
             // fetch apps.json
             // TODO change to real sync action
-            List<WebApp> remoteApps = getRemoteApps();
+            Map<String, WebApp> remoteApps = getRemoteApps();
             if (remoteApps == null) {
                 Logger.i("fetch apps.json failed");
                 return 0;
@@ -91,7 +95,7 @@ public class AppSyncService extends Service {
 
             // get diff part
             DiffManifest diffManifest = Diff.generateDiffTask(
-                    new ArrayList<WebApp>(TurtleManagers.appManager.getAllApps()),
+                    TurtleManagers.appManager.getAppsMap(),
                     remoteApps);
 
             for (WebApp newApp : diffManifest.newApps) {
@@ -103,17 +107,19 @@ public class AppSyncService extends Service {
             }
 
             // do it one by one
-            Queue<Task> tasks = TurtleManagers.taskManager.getAllTask();
+            Queue<TaskWithResult> tasks = TurtleManagers.taskManager.getAllTask();
             int total = 0;
             while (true) {
-                Task task = tasks.peek();
+                TaskWithResult task = tasks.peek();
                 total++;
                 if (task == null) {
                     break;
                 }
                 try {
                     task.execute(context);
-                    successTask++;
+                    if (task.isOk()) {
+                        successTask++;
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     Logger.e("task execute failed");

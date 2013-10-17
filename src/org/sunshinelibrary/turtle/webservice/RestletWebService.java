@@ -10,6 +10,7 @@ import org.restlet.*;
 import org.restlet.data.Form;
 import org.restlet.data.Method;
 import org.restlet.data.Protocol;
+import org.restlet.data.Status;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
@@ -28,7 +29,6 @@ import java.util.*;
  * Time: 8:45 PM
  */
 public class RestletWebService extends Service implements WebService {
-
 
     public static <T> Collection<T> filter(Collection<T> target, Predicate<T> predicate) {
         Collection<T> result = new ArrayList<T>();
@@ -139,6 +139,19 @@ public class RestletWebService extends Service implements WebService {
                         response.setEntity(new StringRepresentation(result.toString()));
                     }
                 });
+
+        router.attachDefault(new Restlet() {
+            @Override
+            public void handle(Request request, Response response) {
+                String requestPath = request.getResourceRef().getPath();
+                if ("/".equals(requestPath)) {
+                    response.redirectSeeOther("/app/0/index.html");
+                    return;
+                }
+                response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+            }
+        });
+
 
         Application application = new SimpleApplication(router);
 

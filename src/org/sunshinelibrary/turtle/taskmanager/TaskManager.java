@@ -1,7 +1,5 @@
 package org.sunshinelibrary.turtle.taskmanager;
 
-import com.squareup.tape.Task;
-
 import java.util.Queue;
 
 /**
@@ -11,10 +9,10 @@ import java.util.Queue;
  */
 public interface TaskManager {
 
-    public void addTask(Task task);
+    public void addTask(TaskWithResult task);
 
     public void removeTask(String id);
 
-    public Queue<Task> getAllTask();
+    public Queue<TaskWithResult> getAllTask();
 
 }

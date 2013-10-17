@@ -1,12 +1,13 @@
 package org.sunshinelibrary.turtle.userdatamanager;
 
 import android.text.TextUtils;
-import org.sunshinelibrary.turtle.utils.GsonConverter;
-import org.sunshinelibrary.turtle.utils.Logger;
 import com.google.gson.Gson;
 import com.squareup.tape.FileObjectQueue;
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.io.FileUtils;
+import org.sunshinelibrary.turtle.utils.Configurations;
+import org.sunshinelibrary.turtle.utils.GsonConverter;
+import org.sunshinelibrary.turtle.utils.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,9 +29,9 @@ public class TapeUserDataManager implements UserDataManager {
                 = new GsonConverter<UserDataTask>(new Gson(), UserDataTask.class);
         userDataQueue = new UserDataTaskQueue(
                 new FileObjectQueue<UserDataTask>(
-                        new File("/sdcard/webapps/userdatatask.db"), converter)
+                        new File(Configurations.getUserDataQueueFile()), converter)
         );
-        userDataFolder = new File("/sdcard/webapps/userdata");
+        userDataFolder = new File(Configurations.getUserDataBase());
         userDataFolder.mkdirs();
         if (!userDataFolder.canWrite()) {
             throw new IOException("userdata folder cannot write");

@@ -17,13 +17,15 @@ public interface AppManager {
 
     public Collection<WebApp> getAllApps();
 
-    public Map<String,WebApp> getAppsMap();
+    public Map<String, WebApp> getAppsMap();
 
     public void removeAllApps();
 
     public void refresh();
 
     public boolean containsApp(String id);
+
+    public WebApp getApp(String id);
 
     public List<WebApp> getApps(List<WebAppQuery> queries);
 

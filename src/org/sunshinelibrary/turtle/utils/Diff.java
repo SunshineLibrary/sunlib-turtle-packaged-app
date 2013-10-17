@@ -2,8 +2,7 @@ package org.sunshinelibrary.turtle.utils;
 
 import org.sunshinelibrary.turtle.models.WebApp;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 /**
  * User: fxp
@@ -12,21 +11,22 @@ import java.util.List;
  */
 public class Diff {
 
-    public static DiffManifest generateDiffTask(List<WebApp> localApps, List<WebApp> remoteApps) {
+    public static DiffManifest generateDiffTask(Map<String, WebApp> localApps, Map<String, WebApp> remoteApps) {
         // TODO Calculate different parts
         DiffManifest manifest = new DiffManifest();
-        manifest.newApps = new ArrayList<WebApp>();
 
-
-
-
-        manifest.newApps.add(new WebApp("http://192.168.3.16:3000/dl/0.2.zip"));
-//        manifest.newApps.add(new WebApp(""));
-//        manifest.newApps.add(new WebApp(""));
-        manifest.deletedApps = new ArrayList<WebApp>();
-//        manifest.deletedApps.add(new WebApp());
-//        manifest.deletedApps.add(new WebApp());
-//        manifest.deletedApps.add(new WebApp());
+        for (WebApp localApp : localApps.values()) {
+            WebApp remoteApp = remoteApps.get(localApp.getId());
+            if (remoteApp == null) {
+                manifest.deletedApps.add(localApp);
+            } else {
+                if (localApp.getVersionCode() < remoteApp.getVersionCode()) {
+                    manifest.newApps.add(remoteApp);
+                }
+                remoteApps.remove(remoteApp.getId());
+            }
+        }
+        manifest.newApps.addAll(remoteApps.values());
         return manifest;
     }
 

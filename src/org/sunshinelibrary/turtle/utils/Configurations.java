@@ -9,8 +9,8 @@ import java.io.File;
  */
 public class Configurations {
 
-    public static final String storageBase = "/sdcard/webapps";
-    public static String serverHost = "http://192.168.1.10:3000";
+    public static final String storageBase = "/sdcard/turtle/";
+    public static String serverHost = "http://192.168.3.19:3000";
 
     public static void init() {
         boolean success = false;

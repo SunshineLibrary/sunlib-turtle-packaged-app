@@ -1,11 +1,11 @@
-package org.sunshinelibrary.turtle.models;
+package org.sunshinelibrary.turtle.taskmanager;
 
 import android.content.Context;
 import android.text.TextUtils;
-import com.squareup.tape.Task;
 import org.apache.commons.io.FileUtils;
 import org.sunshinelibrary.turtle.TurtleManagers;
 import org.sunshinelibrary.turtle.appmanager.WebAppException;
+import org.sunshinelibrary.turtle.models.WebApp;
 import org.sunshinelibrary.turtle.utils.Logger;
 
 import java.io.File;
@@ -16,8 +16,10 @@ import java.net.URL;
  * Date: 10/14/13
  * Time: 9:16 PM
  */
-public class DownloadTask implements Task<Context> {
+public class DownloadTask implements TaskWithResult<Context> {
     WebApp app;
+    boolean isOk = false;
+    Object result = null;
 
     public DownloadTask(WebApp newApp) {
         app = newApp;
@@ -38,9 +40,9 @@ public class DownloadTask implements Task<Context> {
 
             // Add to AppManager
             WebApp app = TurtleManagers.appManager.installApp(context, zipFile);
-            appId = app.getId();
+            isOk = true;
+            result = app;
         } catch (Exception e) {
-            // TODO to print a brief error, and clean up
             Logger.e("download task failed," + e.getMessage());
             e.printStackTrace();
             if (!TextUtils.isEmpty(appId)) {
@@ -54,4 +56,13 @@ public class DownloadTask implements Task<Context> {
         Logger.i("download task complete," + app);
     }
 
+    @Override
+    public boolean isOk() {
+        return isOk;
+    }
+
+    @Override
+    public Object getResult() {
+        return result;
+    }
 }

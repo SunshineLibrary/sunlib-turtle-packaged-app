@@ -2,6 +2,7 @@ package org.sunshinelibrary.turtle.appmanager;
 
 import android.content.Context;
 import android.text.TextUtils;
+import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.sunshinelibrary.turtle.models.WebApp;
@@ -47,6 +48,11 @@ public class WebAppManager implements AppManager {
     }
 
     @Override
+    public WebApp getApp(String id) {
+        return apps.get(id);
+    }
+
+    @Override
     public List<WebApp> getApps(List<WebAppQuery> queries) {
         return null;
     }
@@ -77,16 +83,14 @@ public class WebAppManager implements AppManager {
                 } else {
                     Logger.i("app need update," + appId);
                     apps.remove(appId);
-                    File tmpFolder = FileUtils.getTempDirectory();
+                    File tmpFolder = Files.createTempDir();
                     ZipUtils.unzip(appFile, tmpFolder);
                     FileUtils.deleteDirectory(appFolder);
-                    appFolder.mkdirs();
                     FileUtils.moveDirectory(tmpFolder, appFolder);
                     apps.put(newApp.getId(), newApp);
                 }
             } else {
                 FileUtils.deleteDirectory(appFolder);
-                appFolder.mkdir();
                 ZipUtils.unzip(appFile, appFolder);
                 apps.put(newApp.getId(), newApp);
             }
