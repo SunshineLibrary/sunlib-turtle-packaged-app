@@ -1,7 +1,6 @@
 package org.sunshinelibrary.turtle.appmanager;
 
 import android.content.Context;
-import android.text.TextUtils;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
@@ -64,25 +63,33 @@ public class WebAppManager implements AppManager {
 
     @Override
     public WebApp installApp(Context context, File appFile) throws WebAppException {
-        Logger.i("install app start," + appFile);
-
         // TODO Clean up all temp files
         WebApp newApp = null;
         File appFolder = null;
         try {
+            Logger.i("install app," + appFile);
             newApp = WebAppParser.parse(appFile);
-            String appId = newApp.getId();
-            if (TextUtils.isEmpty(appId)) {
-                throw new WebAppException("webapp id is null," + appFile.getAbsolutePath());
+            if (newApp == null) {
+                throw new WebAppException("app parser failed," + appFile.getAbsolutePath());
             }
+            String appId = newApp.getId();
             appFolder = new File(Configurations.getAppBase(), newApp.getId());
             if (apps.containsKey(appId)) {
-                if (apps.get(appId).getVersionCode() >= newApp.getVersionCode()) {
-                    Logger.i("local app already exists, or newer than server app," + appFile.getAbsolutePath());
-                    return apps.get(appId);
+                WebApp localApp = apps.get(appId);
+                int localVersion = localApp.getVersionCode();
+                int remoteVersion = newApp.getVersionCode();
+                if (localVersion >= remoteVersion) {
+                    Logger.i("local app already exists, or newer than server app," + localVersion + "," + remoteVersion);
+                    return localApp;
                 } else {
-                    Logger.i("app need update," + appId);
-                    apps.remove(appId);
+                    Logger.i("update app," + appId + ",from " + localVersion + ",to " + remoteVersion);
+                    /**
+                     * Update app
+                     * 1. unzip app to a temp dir
+                     * 2. delete exists app folder
+                     * 3. move temp dir to new app folder
+                     * TODO need more fallback process, if deleteDirectory failed or move directory failed?
+                     */
                     File tmpFolder = Files.createTempDir();
                     ZipUtils.unzip(appFile, tmpFolder);
                     FileUtils.deleteDirectory(appFolder);
@@ -96,10 +103,10 @@ public class WebAppManager implements AppManager {
             }
             Logger.i("install app complete," + appFile);
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.e("install app failed," + e.getMessage());
             if (appFolder != null) {
                 try {
-                    Logger.e("install file failed, delete unzipped folder");
+                    Logger.e("delete unzipped folder");
                     FileUtils.deleteDirectory(appFolder);
                 } catch (IOException e1) {
                     e1.printStackTrace();
@@ -115,9 +122,15 @@ public class WebAppManager implements AppManager {
     public void uninstallApp(Context context, String id) throws WebAppException {
         // Notify server to refresh app
         if (apps.containsKey(id)) {
-            // TODO Delete all apps
+            Logger.i("uninstall app," + id);
             apps.remove(id);
-            Logger.i("remove app," + id);
+            File appFolder = new File(Configurations.getAppBase(), id);
+            try {
+                FileUtils.deleteDirectory(appFolder);
+            } catch (IOException e) {
+                Logger.i("clean app folder failed," + appFolder.getAbsolutePath() + "," + e.getMessage());
+            }
+            Logger.i("uninstall app success," + id);
         } else {
             Logger.i("app not exists," + id);
         }

@@ -10,7 +10,8 @@ import java.io.File;
 public class Configurations {
 
     public static final String storageBase = "/sdcard/turtle/";
-    public static String serverHost = "http://192.168.3.19:3000";
+//    public static String serverHost = "http://192.168.3.19:3000";
+    public static String serverHost = "http://192.168.3.100";
 
     public static void init() {
         boolean success = false;
@@ -31,7 +32,8 @@ public class Configurations {
 
     public static String getSunlibAPI(SunAPI api) {
         if (SunAPI.APPSJSON.equals(api)) {
-            return serverHost + "/apps.json";
+//            return serverHost + "/apps.json";
+            return serverHost + "/exercise/v1/apps.json";
         } else if (SunAPI.USERDATA.equals(api)) {
             return serverHost;
         }

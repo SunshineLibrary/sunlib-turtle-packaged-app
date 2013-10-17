@@ -1,5 +1,6 @@
 package org.sunshinelibrary.turtle.utils;
 
+import android.text.TextUtils;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.sunshinelibrary.turtle.appmanager.WebAppException;
@@ -44,6 +45,9 @@ public class WebAppParser {
                 if ("manifest.json".equals(entryName)) {
                     String manifest = IOUtils.toString(zis, "UTF8");
                     ret = new WebApp(new JSONObject(manifest));
+                    if (TextUtils.isEmpty(ret.getId())) {
+                        throw new WebAppException("read app manifest failed, app id is null");
+                    }
                     break;
                 }
             }
