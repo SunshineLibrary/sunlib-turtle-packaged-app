@@ -1,15 +1,9 @@
 package org.sunshinelibrary.turtle;
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.view.View;
-import android.widget.Toast;
-import org.sunshinelibrary.turtle.syncservice.SyncEvent;
-import org.sunshinelibrary.turtle.utils.Logger;
 
 public class MainActivity extends Activity {
     /**
@@ -25,17 +19,8 @@ public class MainActivity extends Activity {
 
         findViewById(R.id.button).setOnClickListener(new AddClick());
         findViewById(R.id.button1).setOnClickListener(new QueryClick());
-
-        startIntervalAlarm();
     }
 
-    public void startIntervalAlarm() {
-        PendingIntent pendingIntent = SyncEvent.SYNC_START.createBroadcast(this);
-        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        am.setRepeating(AlarmManager.RTC_WAKEUP, SystemClock.currentThreadTimeMillis(), 30 * 1000, pendingIntent);
-        Toast.makeText(getApplicationContext(), "started", Toast.LENGTH_SHORT).show();
-        Logger.i("alarm started");
-    }
 
     public class AddClick implements View.OnClickListener {
         @Override

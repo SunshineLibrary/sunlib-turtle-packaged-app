@@ -9,6 +9,8 @@ import java.util.Map;
  */
 public interface UserDataManager {
 
+    public UserDataTaskQueue getUserDataQueue();
+
     public void sendData(String id, String content);
 
     public String getData(String id);

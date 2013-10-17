@@ -169,7 +169,6 @@ public class RestletWebService extends Service implements WebService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Logger.i("RestletWebService onStartCommand," + intent.getAction());
         return super.onStartCommand(intent, flags, startId);
     }
 

@@ -1,5 +1,8 @@
 package org.sunshinelibrary.turtle.userdatamanager;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.text.TextUtils;
 import com.google.gson.Gson;
 import com.squareup.tape.FileObjectQueue;
@@ -23,8 +26,13 @@ public class TapeUserDataManager implements UserDataManager {
 
     public UserDataTaskQueue userDataQueue;
     private File userDataFolder = null;
+    private String accessToken = null;
 
-    public TapeUserDataManager() throws IOException {
+    public TapeUserDataManager(Context context) throws IOException {
+        accessToken = getAccessToken(context);
+        if (accessToken == null) {
+            throw new IOException("access token is null");
+        }
         FileObjectQueue.Converter<UserDataTask> converter
                 = new GsonConverter<UserDataTask>(new Gson(), UserDataTask.class);
         userDataQueue = new UserDataTaskQueue(
@@ -38,10 +46,26 @@ public class TapeUserDataManager implements UserDataManager {
         }
     }
 
-    public static String getUserDataId(String key) {
-//        return (TextUtils.isEmpty(key)) ? null : String.valueOf(key.hashCode());
+    public static String getAccessToken(Context context) {
+        String access_token = null;
+        try {
+            Context mContext = context.createPackageContext("org.sunshinelibrary.login", Context.MODE_MULTI_PROCESS);
+            SharedPreferences preferences = mContext.getSharedPreferences("LOGIN", Context.MODE_MULTI_PROCESS);
+            access_token = preferences.getString("ACCESS_TOKEN", "");
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+//        return access_token;
+        return "test";
+    }
 
+    public static String getUserDataId(String key) {
         return (TextUtils.isEmpty(key)) ? null : new Base32().encodeAsString(key.getBytes());
+    }
+
+    @Override
+    public UserDataTaskQueue getUserDataQueue() {
+        return userDataQueue;
     }
 
     @Override
@@ -57,7 +81,7 @@ public class TapeUserDataManager implements UserDataManager {
                     new File(userDataFolder, cacheID),
                     content
             );
-            userDataQueue.add(new UserDataTask(id, content));
+            userDataQueue.add(new UserDataTask(id, content, accessToken));
         } catch (IOException e) {
             Logger.e("write user data failed," + cacheID + "," + content);
         }

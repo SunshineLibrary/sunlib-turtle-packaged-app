@@ -12,10 +12,12 @@ import java.io.Serializable;
 public class UserDataTask implements Serializable, Task {
     public String target;
     public String content;
+    public String accessToken;
 
-    public UserDataTask(String target, String content) {
+    public UserDataTask(String target, String content, String accessToken) {
         this.target = target;
         this.content = content;
+        this.accessToken = accessToken;
     }
 
     @Override

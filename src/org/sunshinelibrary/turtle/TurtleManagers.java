@@ -1,5 +1,6 @@
 package org.sunshinelibrary.turtle;
 
+import android.content.Context;
 import org.sunshinelibrary.turtle.appmanager.AppManager;
 import org.sunshinelibrary.turtle.appmanager.WebAppManager;
 import org.sunshinelibrary.turtle.taskmanager.SyncTaskManager;
@@ -18,11 +19,11 @@ public class TurtleManagers {
     public static TaskManager taskManager;
     public static UserDataManager userDataManager;
 
-    public static void init() throws Exception {
+    public static void init(Context context) throws Exception {
         Configurations.init();
         appManager = new WebAppManager();
         taskManager = new SyncTaskManager();
-        userDataManager = new TapeUserDataManager();
+        userDataManager = new TapeUserDataManager(context);
     }
 
 }

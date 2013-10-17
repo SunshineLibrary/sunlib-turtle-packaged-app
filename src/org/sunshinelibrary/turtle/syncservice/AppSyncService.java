@@ -13,11 +13,16 @@ import org.sunshinelibrary.turtle.models.WebApp;
 import org.sunshinelibrary.turtle.taskmanager.DeleteTask;
 import org.sunshinelibrary.turtle.taskmanager.DownloadTask;
 import org.sunshinelibrary.turtle.taskmanager.TaskWithResult;
+import org.sunshinelibrary.turtle.userdatamanager.UserDataTask;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Diff;
 import org.sunshinelibrary.turtle.utils.DiffManifest;
 import org.sunshinelibrary.turtle.utils.Logger;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -58,7 +63,7 @@ public class AppSyncService extends Service {
     public static class SyncTask extends AsyncTask<Void, Integer, Integer> {
 
         public Map<String, WebApp> getRemoteApps() {
-            Map<String, WebApp> ret = new HashMap<String, WebApp>();
+            Map<String, WebApp> ret = null;
             HttpURLConnection urlConnection = null;
             try {
                 URL url = new URL(Configurations.getSunlibAPI(Configurations.SunAPI.APPSJSON));
@@ -67,6 +72,7 @@ public class AppSyncService extends Service {
                 Type type = new TypeToken<List<WebApp>>() {
                 }.getType();
                 List<WebApp> remoteApps = new Gson().fromJson(manifest, type);
+                ret = new HashMap<String, WebApp>();
                 for (WebApp app : remoteApps) {
                     ret.put(app.getId(), app);
                 }
@@ -127,9 +133,40 @@ public class AppSyncService extends Service {
                 tasks.remove();
             }
 
-//            while(true){
-//                TurtleManagers.userDataManager.
-//            }
+            while (true) {
+                UserDataTask task = TurtleManagers.userDataManager.getUserDataQueue().peek();
+                if (task == null) {
+                    break;
+                }
+                URL url = null;
+                try {
+                    url = new URL(Configurations.getSunlibAPI(Configurations.SunAPI.USERDATA) + task.target);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setDoInput(true);
+                    conn.setDoOutput(true);
+                    conn.setRequestProperty("Content-Type", "application/json");
+                    conn.setRequestProperty("Access-Token", task.accessToken);
+
+                    OutputStream os = conn.getOutputStream();
+                    BufferedWriter writer = new BufferedWriter(
+                            new OutputStreamWriter(os, "UTF-8"));
+                    writer.write(task.content);
+                    writer.flush();
+                    writer.close();
+                    os.close();
+                    conn.connect();
+                    Logger.i(conn.getResponseMessage());
+                    if (conn.getResponseCode() != 200) {
+                        Logger.e("send userdata failed,wait for next sync");
+                        break;
+                    }
+                    TurtleManagers.userDataManager.getUserDataQueue().remove();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
 
             return successTask;
         }

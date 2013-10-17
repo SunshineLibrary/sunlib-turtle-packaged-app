@@ -32,9 +32,15 @@ public class Configurations {
     public static String getSunlibAPI(SunAPI api) {
         if (SunAPI.APPSJSON.equals(api)) {
             return serverHost + "/apps.json";
+        } else if (SunAPI.USERDATA.equals(api)) {
+            return serverHost;
         }
         return null;
     }
+//
+//    public static String getUserDataAPI(String path){
+//
+//    }
 
     public static String getStorageBase() {
         return storageBase;
@@ -57,7 +63,7 @@ public class Configurations {
     }
 
     public static enum SunAPI {
-        APPSJSON;
+        APPSJSON, USERDATA;
     }
 
 
