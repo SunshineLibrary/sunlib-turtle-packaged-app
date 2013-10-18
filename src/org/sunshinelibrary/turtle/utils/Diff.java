@@ -12,9 +12,7 @@ import java.util.Map;
 public class Diff {
 
     public static DiffManifest generateDiffTask(Map<String, WebApp> localApps, Map<String, WebApp> remoteApps) {
-        // TODO Calculate different parts
         DiffManifest manifest = new DiffManifest();
-
         for (WebApp localApp : localApps.values()) {
             WebApp remoteApp = remoteApps.get(localApp.getId());
             if (remoteApp == null) {

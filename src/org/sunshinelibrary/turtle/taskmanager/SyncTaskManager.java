@@ -22,14 +22,18 @@ public class SyncTaskManager implements TaskManager {
 
     @Override
     public TaskWithResult remove() {
-        return tasks.remove();
+        TaskWithResult ret = tasks.remove();
+        for (TaskManagerCallback callback : callbackList) {
+            callback.onTaskChange();
+        }
+        return ret;
     }
 
     @Override
     public void addTask(TaskWithResult task) {
         tasks.add(task);
         for (TaskManagerCallback callback : callbackList) {
-            callback.onNewTask(task);
+            callback.onTaskChange();
         }
     }
 

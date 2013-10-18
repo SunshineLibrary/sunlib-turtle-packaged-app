@@ -37,5 +37,16 @@
         <service android:name=".webservice.RestletWebService"/>
         <service android:name=".syncservice.AppSyncService"/>
 
+        <activity android:name=".reader.PdfActivity"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <data android:scheme="pdf"/>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
     </application>
+
 </manifest>

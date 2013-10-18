@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
+import android.widget.Toast;
 import com.google.gson.Gson;
 import com.squareup.tape.FileObjectQueue;
 import org.apache.commons.codec.binary.Base32;
@@ -53,10 +54,11 @@ public class TapeUserDataManager implements UserDataManager {
             SharedPreferences preferences = mContext.getSharedPreferences("LOGIN", Context.MODE_MULTI_PROCESS);
             access_token = preferences.getString("ACCESS_TOKEN", "");
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            Toast.makeText(context, "无法获得用户AccessToken，将使用临时AccessToken", Toast.LENGTH_LONG).show();
+            Logger.e("cannot get access token, use test instead");
+            access_token = "test";
         }
-//        return access_token;
-        return "test";
+        return access_token;
     }
 
     public static String getUserDataId(String key) {

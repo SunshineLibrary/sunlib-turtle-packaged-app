@@ -62,7 +62,7 @@ public class RestletWebService extends Service implements WebService {
 
         // start server
         Component component = new Component();
-        component.getServers().add(Protocol.HTTP, 8182);
+        component.getServers().add(Protocol.HTTP, Configurations.localPort);
         component.getClients().add(Protocol.FILE);
         component.getClients().add(Protocol.HTTP);
 

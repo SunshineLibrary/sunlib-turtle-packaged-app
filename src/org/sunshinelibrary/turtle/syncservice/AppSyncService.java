@@ -112,7 +112,6 @@ public class AppSyncService extends Service {
             }
 
             // do it one by one
-//            Queue<TaskWithResult> tasks = TurtleManagers.taskManager.getAllTask();
             int total = 0;
             while (true) {
                 TaskWithResult task = TurtleManagers.taskManager.peek();

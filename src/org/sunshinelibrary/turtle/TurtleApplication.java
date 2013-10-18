@@ -6,10 +6,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
-import android.widget.Toast;
 import org.apache.commons.io.FileUtils;
 import org.sunshinelibrary.turtle.syncservice.AppSyncService;
 import org.sunshinelibrary.turtle.syncservice.SyncEvent;
+import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Logger;
 import org.sunshinelibrary.turtle.webservice.RestletWebService;
 
@@ -32,7 +32,7 @@ public class TurtleApplication extends Application {
             TurtleManagers.init(this);
             TurtleManagers.appManager.refresh();
             File tmpFile = File.createTempFile("turtle_", "tmp");
-            FileUtils.copyInputStreamToFile(getAssets().open("0.zip"), tmpFile);
+            FileUtils.copyInputStreamToFile(getAssets().open(Configurations.LAUNCHER_APP_FILE), tmpFile);
             TurtleManagers.appManager.installApp(this, tmpFile);
         } catch (Exception e) {
             Logger.e("turtle initialized correct");
@@ -52,8 +52,7 @@ public class TurtleApplication extends Application {
     public void startIntervalAlarm() {
         PendingIntent pendingIntent = SyncEvent.SYNC_START.createBroadcast(this);
         AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        am.setRepeating(AlarmManager.RTC_WAKEUP, SystemClock.currentThreadTimeMillis(), 30 * 1000, pendingIntent);
-        Toast.makeText(getApplicationContext(), "started", Toast.LENGTH_SHORT).show();
-        Logger.i("alarm started");
+        am.setRepeating(AlarmManager.RTC_WAKEUP, SystemClock.currentThreadTimeMillis(), Configurations.SYNC_INTERVAL, pendingIntent);
+        Logger.i("alarm started, interval is " + Configurations.SYNC_INTERVAL);
     }
 }

@@ -7,8 +7,6 @@ package org.sunshinelibrary.turtle.taskmanager;
  */
 public interface TaskManagerCallback {
 
-    public void onNewTask(TaskWithResult task);
-
-    public void onCompleteTask(TaskWithResult task);
+    public void onTaskChange();
 
 }
