@@ -1,5 +1,7 @@
 package org.sunshinelibrary.turtle.taskmanager;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -10,11 +12,25 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class SyncTaskManager implements TaskManager {
 
-    ConcurrentLinkedQueue<TaskWithResult> tasks = new ConcurrentLinkedQueue<TaskWithResult>();
+    List<TaskManagerCallback> callbackList = new ArrayList<TaskManagerCallback>();
+    private ConcurrentLinkedQueue<TaskWithResult> tasks = new ConcurrentLinkedQueue<TaskWithResult>();
+
+    @Override
+    public TaskWithResult peek() {
+        return tasks.peek();
+    }
+
+    @Override
+    public TaskWithResult remove() {
+        return tasks.remove();
+    }
 
     @Override
     public void addTask(TaskWithResult task) {
         tasks.add(task);
+        for (TaskManagerCallback callback : callbackList) {
+            callback.onNewTask(task);
+        }
     }
 
     @Override
@@ -25,5 +41,15 @@ public class SyncTaskManager implements TaskManager {
     @Override
     public Queue<TaskWithResult> getAllTask() {
         return tasks;
+    }
+
+    @Override
+    public void register(TaskManagerCallback callback) {
+        callbackList.add(callback);
+    }
+
+    @Override
+    public void unregister(TaskManagerCallback callback) {
+        callbackList.remove(callback);
     }
 }

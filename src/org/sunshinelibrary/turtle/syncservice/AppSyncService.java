@@ -29,7 +29,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 /**
  * User: fxp
@@ -113,10 +112,10 @@ public class AppSyncService extends Service {
             }
 
             // do it one by one
-            Queue<TaskWithResult> tasks = TurtleManagers.taskManager.getAllTask();
+//            Queue<TaskWithResult> tasks = TurtleManagers.taskManager.getAllTask();
             int total = 0;
             while (true) {
-                TaskWithResult task = tasks.peek();
+                TaskWithResult task = TurtleManagers.taskManager.peek();
                 total++;
                 if (task == null) {
                     break;
@@ -130,7 +129,7 @@ public class AppSyncService extends Service {
                     e.printStackTrace();
                     Logger.e("task execute failed");
                 }
-                tasks.remove();
+                TurtleManagers.taskManager.remove();
             }
 
             while (true) {
