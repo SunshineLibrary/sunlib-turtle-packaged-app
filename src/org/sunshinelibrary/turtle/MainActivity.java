@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.widget.TextView;
 import org.sunshinelibrary.turtle.dashboard.ServiceButton;
+import org.sunshinelibrary.turtle.models.WebApp;
 import org.sunshinelibrary.turtle.syncservice.AppSyncService;
 import org.sunshinelibrary.turtle.taskmanager.TaskManagerCallback;
 import org.sunshinelibrary.turtle.taskmanager.TaskWithResult;
@@ -82,8 +83,11 @@ public class MainActivity extends Activity {
 //                    ((TextView) findViewById(R.id.turtleInfo)).setText(turtleInfo);
                     TaskWithResult currentTask = TurtleManagers.taskManager.peek();
                     if (currentTask != null) {
-                        ((TextView) findViewById(R.id.textView2)).setText(
-                                currentTask.getWebApp() + ":" + currentTask.getProgress());
+                        WebApp app = currentTask.getWebApp();
+                        ((TextView) findViewById(R.id.currentTask)).setText(
+                                app.download_url + ":" + currentTask.getProgress());
+                    } else {
+                        ((TextView) findViewById(R.id.currentTask)).setText("");
                     }
                 }
             });

@@ -79,7 +79,12 @@ public class AppSyncService extends Service {
                 Logger.e("get remote apps failed," + e.getMessage());
             } finally {
                 if (urlConnection != null) {
-                    urlConnection.disconnect();
+                    try {
+                        urlConnection.disconnect();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Logger.e("close connection failed");
+                    }
                 }
             }
             return ret;
