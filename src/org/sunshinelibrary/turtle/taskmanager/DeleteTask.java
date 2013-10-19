@@ -12,7 +12,7 @@ import org.sunshinelibrary.turtle.utils.Logger;
  * Date: 10/14/13
  * Time: 9:16 PM
  */
-public class DeleteTask implements TaskWithResult<Context> {
+public class DeleteTask extends WebAppTaskContext {
     WebApp app;
     boolean isOk = false;
     Object result = null;
@@ -21,20 +21,6 @@ public class DeleteTask implements TaskWithResult<Context> {
         app = deletedApp;
     }
 
-    @Override
-    public void execute(Context context) {
-        // TODO implement this
-        Logger.i("delete this app start," + app);
-        try {
-            TurtleManagers.appManager.uninstallApp(context, app.getId());
-            Logger.i("app uninstall success," + app);
-        } catch (WebAppException e) {
-            e.printStackTrace();
-            Logger.i("app uninstall failed," + app);
-        }
-        SystemClock.sleep(1000);
-        Logger.i("delete this app complete," + app);
-    }
 
     @Override
     public boolean isOk() {
@@ -44,5 +30,19 @@ public class DeleteTask implements TaskWithResult<Context> {
     @Override
     public Object getResult() {
         return result;
+    }
+
+    @Override
+    public void execute() {
+        Logger.i("delete this app start," + app);
+        try {
+            TurtleManagers.appManager.uninstallApp(app.getId());
+            Logger.i("app uninstall success," + app);
+        } catch (WebAppException e) {
+            e.printStackTrace();
+            Logger.i("app uninstall failed," + app);
+        }
+        SystemClock.sleep(1000);
+        Logger.i("delete this app complete," + app);
     }
 }

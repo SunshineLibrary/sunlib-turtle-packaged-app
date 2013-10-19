@@ -1,12 +1,11 @@
 package org.sunshinelibrary.turtle;
 
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.content.Context;
 import android.os.Bundle;
-import android.widget.CheckBox;
 import android.widget.TextView;
+import org.sunshinelibrary.turtle.dashboard.ServiceButton;
 import org.sunshinelibrary.turtle.syncservice.AppSyncService;
+import org.sunshinelibrary.turtle.taskmanager.TaskManagerCallback;
 import org.sunshinelibrary.turtle.taskmanager.TaskWithResult;
 import org.sunshinelibrary.turtle.webservice.RestletWebService;
 
@@ -21,7 +20,8 @@ public class MainActivity extends Activity {
      */
     Timer timer;
     TimerTask updateServiceStatus;
-//    private TaskAdapter taskAdapter;
+    ServiceButton syncButton;
+    ServiceButton webButton;
 
     public static String getNowTime() {
         Calendar cal = Calendar.getInstance();
@@ -34,21 +34,18 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-//        ListView listView = (ListView) this.findViewById(R.id.listView);
+        TurtleManagers.taskManager.register(new TaskManagerCallback() {
+            @Override
+            public void onTaskChange() {
 
-//        taskAdapter = new TaskAdapter();
-//        listView.setAdapter(taskAdapter);
-//        TurtleManagers.taskManager.register(new TaskManagerCallback() {
-//            @Override
-//            public void onTaskChange() {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        taskAdapter.notifyDataSetChanged();
-//                    }
-//                });
-//            }
-//        });
+            }
+        });
+
+        syncButton = ((ServiceButton) findViewById(R.id.syncbutton));
+        syncButton.init(AppSyncService.class);
+
+        webButton = ((ServiceButton) findViewById(R.id.webbutton));
+        webButton.init(RestletWebService.class);
     }
 
     @Override
@@ -69,7 +66,7 @@ public class MainActivity extends Activity {
         super.onResume();
         timer = new Timer();
         updateServiceStatus = new UpdateServiceTask();
-        timer.scheduleAtFixedRate(updateServiceStatus, 0, 10000);
+        timer.scheduleAtFixedRate(updateServiceStatus, 0, 3000);
     }
 
     class UpdateServiceTask extends TimerTask {
@@ -79,27 +76,14 @@ public class MainActivity extends Activity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-                    String syncServiceName = AppSyncService.class.getName();
-                    String webServiceName = RestletWebService.class.getName();
-                    boolean sync = false;
-                    boolean webserver = false;
-                    for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-                        if (syncServiceName.equals(service.service.getClassName())) {
-                            sync = true;
-                        } else if (webServiceName.equals(service.service.getClassName())) {
-                            webserver = true;
-                        }
-                    }
-//                    TurtleInfo info = TurtleInfoUtils.getTurtleInfo();
-//                    String turtleInfo = (info == null) ? "获取服务器信息失败" : info.toString();
-                    ((CheckBox) findViewById(R.id.checkBox)).setChecked(sync);
-                    ((CheckBox) findViewById(R.id.checkBox1)).setChecked(webserver);
+                    syncButton.refresh();
+                    webButton.refresh();
                     ((TextView) findViewById(R.id.textView)).setText(getNowTime());
 //                    ((TextView) findViewById(R.id.turtleInfo)).setText(turtleInfo);
                     TaskWithResult currentTask = TurtleManagers.taskManager.peek();
                     if (currentTask != null) {
-                        ((TextView) findViewById(R.id.textView2)).setText(currentTask.toString());
+                        ((TextView) findViewById(R.id.textView2)).setText(
+                                currentTask.getWebApp() + ":" + currentTask.getProgress());
                     }
                 }
             });

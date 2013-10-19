@@ -43,37 +43,4 @@ public class ZipUtils {
             in.close();
         }
     }
-//
-//    public static void zip(File[] infiles, JarOutputStream jos) throws Exception
-//    {
-//        zip(infiles,"",jos);
-//
-//        // clean up
-//        jos.flush();
-//        jos.close();
-//    }
-//
-//    public static void zip(File[] infiles, String basefolder, JarOutputStream jos) throws Exception
-//    {
-//        for(int i=0; i<infiles.length; i++)
-//        {
-//            if(infiles[i].isDirectory())
-//            {
-//                // recursive call for directories
-//                zip(infiles[i].listFiles(), infiles[i].getName() + File.separator, jos);
-//                continue;
-//            }
-//
-//            String filepath = basefolder + infiles[i].getName();
-//            JarEntry entry = new JarEntry(filepath);
-//            jos.putNextEntry(entry);
-//
-//            FileInputStream fis = new FileInputStream(infiles[i]); // get stream
-//
-//            int count;
-//            while((count = fis.read(buffer, 0, buffer.length)) != -1)
-//                jos.write(buffer, 0, count);
-//        }
-//    }
-
 }

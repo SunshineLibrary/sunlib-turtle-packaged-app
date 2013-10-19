@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 import org.sunshinelibrary.turtle.syncservice.AppSyncService;
+import org.sunshinelibrary.turtle.utils.Logger;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,6 +20,7 @@ public class SyncTriggerReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Logger.i("trigger sync");
         Intent syncIntent = new Intent(context, AppSyncService.class);
         syncIntent.setAction("do_" + SystemClock.currentThreadTimeMillis());
         context.startService(syncIntent);

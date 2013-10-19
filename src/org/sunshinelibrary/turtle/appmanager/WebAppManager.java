@@ -22,9 +22,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * Date: 10/15/13
  * Time: 3:30 PM
  */
-public class WebAppManager implements AppManager {
+public class WebAppManager extends AppManager {
 
     Map<String, WebApp> apps = new ConcurrentHashMap<String, WebApp>();
+
+    public WebAppManager(Context context) {
+        super(context);
+    }
 
     @Override
     public Collection<WebApp> getAllApps() {
@@ -62,7 +66,7 @@ public class WebAppManager implements AppManager {
     }
 
     @Override
-    public WebApp installApp(Context context, File appFile) throws WebAppException {
+    public WebApp installApp( File appFile) throws WebAppException {
         // TODO Clean up all temp files
         WebApp newApp = null;
         File appFolder = null;
@@ -88,7 +92,6 @@ public class WebAppManager implements AppManager {
                      * 1. unzip app to a temp dir
                      * 2. delete exists app folder
                      * 3. move temp dir to new app folder
-                     * TODO need more fallback process, if deleteDirectory failed or move directory failed?
                      */
                     File tmpFolder = Files.createTempDir();
                     ZipUtils.unzip(appFile, tmpFolder);
@@ -119,7 +122,7 @@ public class WebAppManager implements AppManager {
     }
 
     @Override
-    public void uninstallApp(Context context, String id) throws WebAppException {
+    public void uninstallApp(String id) throws WebAppException {
         // Notify server to refresh app
         if (apps.containsKey(id)) {
             Logger.i("uninstall app," + id);

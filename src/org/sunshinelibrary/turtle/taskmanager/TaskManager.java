@@ -9,15 +9,15 @@ import java.util.Queue;
  */
 public interface TaskManager {
 
-    public TaskWithResult peek();
+    public WebAppTaskContext peek();
 
-    public TaskWithResult remove();
+    public WebAppTaskContext remove();
 
-    public void addTask(TaskWithResult task);
+    public void addTask(WebAppTaskContext task);
 
     public void removeTask(String id);
 
-    public Queue<TaskWithResult> getAllTask();
+    public Queue<WebAppTaskContext> getAllTask();
 
     public void register(TaskManagerCallback callback);
 

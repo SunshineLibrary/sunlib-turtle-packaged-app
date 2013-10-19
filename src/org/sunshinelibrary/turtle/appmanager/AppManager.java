@@ -13,26 +13,32 @@ import java.util.Map;
  * Date: 10/14/13
  * Time: 7:54 PM
  */
-public interface AppManager {
+public abstract class AppManager {
 
-    public Collection<WebApp> getAllApps();
+    protected Context context;
 
-    public Map<String, WebApp> getAppsMap();
+    protected AppManager(Context context) {
+        this.context = context;
+    }
 
-    public void removeAllApps();
+    public abstract Collection<WebApp> getAllApps();
 
-    public void refresh();
+    public abstract Map<String, WebApp> getAppsMap();
 
-    public boolean containsApp(String id);
+    public abstract void removeAllApps();
 
-    public WebApp getApp(String id);
+    public abstract void refresh();
 
-    public List<WebApp> getApps(List<WebAppQuery> queries);
+    public abstract boolean containsApp(String id);
 
-    public List<WebApp> getApps(String key, String value);
+    public abstract WebApp getApp(String id);
 
-    public WebApp installApp(Context context, File appFile) throws WebAppException;
+    public abstract List<WebApp> getApps(List<WebAppQuery> queries);
 
-    public void uninstallApp(Context context, String id) throws WebAppException;
+    public abstract List<WebApp> getApps(String key, String value);
+
+    public abstract WebApp installApp(File appFile) throws WebAppException;
+
+    public abstract void uninstallApp(String id) throws WebAppException;
 
 }

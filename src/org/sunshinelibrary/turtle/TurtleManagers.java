@@ -21,7 +21,7 @@ public class TurtleManagers {
 
     public static void init(Context context) throws Exception {
         Configurations.init();
-        appManager = new WebAppManager();
+        appManager = new WebAppManager(context);
         taskManager = new SyncTaskManager();
         userDataManager = new TapeUserDataManager(context);
     }

@@ -6,7 +6,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
+import android.widget.Toast;
 import org.apache.commons.io.FileUtils;
+import org.sunshinelibrary.turtle.appmanager.WebAppException;
 import org.sunshinelibrary.turtle.syncservice.AppSyncService;
 import org.sunshinelibrary.turtle.syncservice.SyncEvent;
 import org.sunshinelibrary.turtle.utils.Configurations;
@@ -14,6 +16,7 @@ import org.sunshinelibrary.turtle.utils.Logger;
 import org.sunshinelibrary.turtle.webservice.RestletWebService;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,22 +34,29 @@ public class TurtleApplication extends Application {
         try {
             TurtleManagers.init(this);
             TurtleManagers.appManager.refresh();
-            File tmpFile = File.createTempFile("turtle_", "tmp");
-            FileUtils.copyInputStreamToFile(getAssets().open(Configurations.LAUNCHER_APP_FILE), tmpFile);
-            TurtleManagers.appManager.installApp(this, tmpFile);
+            if (TurtleManagers.appManager.getApp("0") == null) {
+                initLauncherApp();
+            }
         } catch (Exception e) {
-            Logger.e("turtle initialized correct");
+            Logger.e("turtle initialized incorrect");
             e.printStackTrace();
+            Toast.makeText(this, "turtle initialized incorrect", Toast.LENGTH_LONG).show();
             throw new RuntimeException();
         }
 
         Intent serverIntent = new Intent(this, RestletWebService.class);
         startService(serverIntent);
-
         Intent syncIntent = new Intent(this, AppSyncService.class);
         startService(syncIntent);
 
         startIntervalAlarm();
+    }
+
+    private void initLauncherApp() throws IOException, WebAppException {
+        Logger.i("launcher not exits, install preinstall one");
+        File tmpFile = File.createTempFile("turtle_", "tmp");
+        FileUtils.copyInputStreamToFile(getAssets().open(Configurations.LAUNCHER_APP_FILE), tmpFile);
+        TurtleManagers.appManager.installApp(tmpFile);
     }
 
     public void startIntervalAlarm() {
