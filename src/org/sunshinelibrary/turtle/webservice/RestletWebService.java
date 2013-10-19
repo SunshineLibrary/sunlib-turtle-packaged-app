@@ -11,6 +11,7 @@ import org.restlet.data.Form;
 import org.restlet.data.Method;
 import org.restlet.data.Protocol;
 import org.restlet.data.Status;
+import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
@@ -20,6 +21,7 @@ import org.sunshinelibrary.turtle.models.WebApp;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Logger;
 
+import java.io.IOException;
 import java.util.*;
 
 
@@ -148,13 +150,18 @@ public class RestletWebService extends Service implements WebService {
                     response.redirectSeeOther("/app/0/index.html");
                     return;
                 }
-                response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+//                response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+//                response.setEntity(new StringRepresentation("<a href='/'>刷新</a>"));
+                try {
+                    response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+                    response.setEntity(new InputRepresentation(getAssets().open("404.html")));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
-
         Application application = new SimpleApplication(router);
-
         // serve all app folder
         component.getDefaultHost().attach("/app/", new FileApplication("file://" + Configurations.getAppBase()));
         component.getDefaultHost().attach("", application);
