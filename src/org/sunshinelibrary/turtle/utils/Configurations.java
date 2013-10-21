@@ -13,7 +13,6 @@ public class Configurations {
 
     public static final String TURTLE_SHARED_PREFERENCE = "Turtle";
     public static final String TURTLE_SHARED_PREFERENCE_INIT = "init";
-
     public static final String LAUNCHER_APP_FILE = "0.zip";
     public static final String storageBase = "/sdcard/turtle/";
     public static final int SYNC_INTERVAL = 30 * 1000;
@@ -24,6 +23,8 @@ public class Configurations {
     public static int localPort = 9460;
     public static String localHost = "http://127.0.0.1:" + localPort;
     public static String accessToken;
+    public static long lastSync;
+    public static long lastSuccessSync;
 
     public static void init(Context context) {
         boolean success = false;

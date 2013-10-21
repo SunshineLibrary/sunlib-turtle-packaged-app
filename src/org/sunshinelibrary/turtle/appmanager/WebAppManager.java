@@ -66,7 +66,7 @@ public class WebAppManager extends AppManager {
     }
 
     @Override
-    public WebApp installApp( File appFile) throws WebAppException {
+    public WebApp installApp(File appFile) throws WebAppException {
         // TODO Clean up all temp files
         WebApp newApp = null;
         File appFolder = null;

@@ -1,6 +1,7 @@
 package org.sunshinelibrary.turtle.taskmanager;
 
 import android.text.TextUtils;
+import org.apache.commons.io.FileUtils;
 import org.sunshinelibrary.turtle.TurtleManagers;
 import org.sunshinelibrary.turtle.appmanager.WebAppException;
 import org.sunshinelibrary.turtle.models.WebApp;
@@ -52,6 +53,7 @@ public class DownloadTask extends WebAppTask {
         String appId = null;
         File tmpFile = null;
         try {
+            state = "downloading";
             // Download the app to temp directory
             tmpFile = File.createTempFile("turtle_", ".tmp");
             URL url = new URL(app.download_url);
@@ -59,15 +61,24 @@ public class DownloadTask extends WebAppTask {
 //            FileUtils.copyURLToFile(url, tmpFile);
             File zipFile = tmpFile;
 
+            state = "installing";
             // Add to AppManager
+            progress = 0;
             WebApp app = TurtleManagers.appManager.installApp(zipFile);
-            isOk = true;
-            result = app;
-//            progressMsg = "下载并安装成功," + app.id;
             progress = 100;
+            result = app;
+            isOk = true;
+            state = "completed";
+            Logger.i("app downloaded and installed," + app);
         } catch (Exception e) {
+            progress = 0;
+            state = "failed";
+            result = e.getMessage();
+
             Logger.e("download task failed," + e.getMessage());
-            e.printStackTrace();
+            if (tmpFile != null) {
+                FileUtils.deleteQuietly(tmpFile);
+            }
             if (!TextUtils.isEmpty(appId)) {
                 try {
                     TurtleManagers.appManager.uninstallApp(appId);
@@ -75,10 +86,7 @@ public class DownloadTask extends WebAppTask {
                     e1.printStackTrace();
                 }
             }
-//            progressMsg = "下载失败," + app.id;
-            progress = 0;
         }
-        Logger.i("download task complete," + app);
     }
 
     private void downloadFileFromUrl(URL url, File dstFile) throws IOException {

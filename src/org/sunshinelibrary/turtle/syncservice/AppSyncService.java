@@ -26,6 +26,7 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,6 +115,11 @@ public class AppSyncService extends Service {
 
             for (WebApp deletedApp : diffManifest.deletedApps) {
                 TurtleManagers.taskManager.addTask(new DeleteTask(deletedApp));
+            }
+
+            Configurations.lastSync = Calendar.getInstance().getTimeInMillis();
+            if (diffManifest.newApps.size() == 0 && diffManifest.deletedApps.size() == 0) {
+                Configurations.lastSuccessSync = Calendar.getInstance().getTimeInMillis();
             }
 
             // do it one by one

@@ -241,12 +241,16 @@ public class RestletWebService extends Service implements WebService {
 
         public WebApp installApp(URL url) {
             WebApp ret = null;
+            File tmpFile = null;
             try {
-                File tmpFile = File.createTempFile("turtl_debug_", ".tmp");
+                tmpFile = File.createTempFile("turtl_debug_", ".tmp");
                 FileUtils.copyURLToFile(url, tmpFile);
                 ret = TurtleManagers.appManager.installApp(tmpFile);
             } catch (Exception e) {
                 e.printStackTrace();
+                if (tmpFile != null) {
+                    FileUtils.deleteQuietly(tmpFile);
+                }
             }
             return ret;
         }

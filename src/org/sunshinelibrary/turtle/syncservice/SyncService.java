@@ -13,4 +13,7 @@ public interface SyncService {
 
     public void unregister(SyncEvent event, SyncListener listener);
 
+    public long getLastSyncTime();
+
+    public long getLastSyncCompleteTime();
 }
