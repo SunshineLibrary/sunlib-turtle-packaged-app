@@ -11,6 +11,7 @@ import org.sunshinelibrary.turtle.models.WebApp;
 import org.sunshinelibrary.turtle.syncservice.AppSyncService;
 import org.sunshinelibrary.turtle.taskmanager.TaskManagerCallback;
 import org.sunshinelibrary.turtle.taskmanager.TaskWithResult;
+import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.ConnectionState;
 import org.sunshinelibrary.turtle.utils.DateFormater;
 import org.sunshinelibrary.turtle.utils.TurtleInfoUtils;
@@ -82,7 +83,7 @@ public class MainActivity extends Activity {
             new Thread(new CheckServerTask()).start();
         }
 
-        public class CheckServerTask implements Runnable{
+        public class CheckServerTask implements Runnable {
 
             @Override
             public void run() {
@@ -115,12 +116,13 @@ public class MainActivity extends Activity {
                                     "\t服务状态最后更新时间: " +
                                     DateFormater.format(Calendar.getInstance().getTimeInMillis()));
 //                    ((TextView) findViewById(R.id.turtleInfo)).setText(turtleInfo);
+                    ((TextView) findViewById(R.id.accessToken)).setText(Configurations.getAccessToken());
                     TaskWithResult currentTask = TurtleManagers.taskManager.peek();
                     if (currentTask != null) {
                         WebApp app = currentTask.getWebApp();
                         int progress = currentTask.getProgress();
                         ((TextView) findViewById(R.id.currentTask)).setText(
-                                app.download_url + ":" + progress);
+                                app.download_url + ":" + progress+"%");
                     } else {
                         ((TextView) findViewById(R.id.currentTask)).setText("当前无任务运行");
                     }

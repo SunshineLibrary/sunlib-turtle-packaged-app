@@ -99,6 +99,7 @@ public class AppSyncService extends Service {
             Map<String, WebApp> remoteApps = getRemoteApps();
             if (remoteApps == null) {
                 Logger.i("fetch apps.json failed");
+                running = false;
                 return 0;
             }
 
