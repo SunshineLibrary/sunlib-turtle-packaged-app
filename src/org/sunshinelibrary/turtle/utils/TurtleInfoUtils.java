@@ -1,11 +1,19 @@
 package org.sunshinelibrary.turtle.utils;
 
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.widget.Toast;
 import org.apache.http.conn.util.InetAddressUtils;
 import org.restlet.Context;
 import org.sunshinelibrary.turtle.models.TurtleInfo;
 
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.URL;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
@@ -66,6 +74,45 @@ public class TurtleInfoUtils {
             ex.printStackTrace();
         }
         return "";
+    }
+
+    public static ConnectionState getLocalServerState() {
+        ConnectionState ret = new ConnectionState();
+        ret.checkTime = Calendar.getInstance().getTimeInMillis();
+        try {
+            URL url = new URL(Configurations.LOCAL_SERVER_HOST);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setReadTimeout(5000);
+            try {
+                InputStream in = new BufferedInputStream(connection.getInputStream());
+                byte[] buf = new byte[4096];
+                int count = -1;
+                while ((count = in.read(buf)) != -1) {
+                }
+                ret.isConnected = true;
+            } finally {
+                connection.disconnect();
+            }
+        } catch (Exception e) {
+            ret.isConnected = false;
+        }
+        long end = Calendar.getInstance().getTimeInMillis();
+        ret.connectionDelay = end - ret.checkTime;
+        return ret;
+    }
+
+    public static String getAccessToken(android.content.Context context) {
+        String access_token = null;
+        try {
+            android.content.Context mContext = context.createPackageContext("org.sunshinelibrary.login", android.content.Context.MODE_MULTI_PROCESS);
+            SharedPreferences preferences = mContext.getSharedPreferences("LOGIN", android.content.Context.MODE_MULTI_PROCESS);
+            access_token = preferences.getString("ACCESS_TOKEN", "");
+        } catch (PackageManager.NameNotFoundException e) {
+            Toast.makeText(context, "无法获得用户AccessToken，将使用临时AccessToken", Toast.LENGTH_LONG).show();
+            Logger.e("cannot get access token, use test instead");
+            access_token = "test";
+        }
+        return access_token;
     }
 
 }

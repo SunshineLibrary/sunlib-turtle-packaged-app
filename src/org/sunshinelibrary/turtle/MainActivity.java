@@ -1,16 +1,22 @@
 package org.sunshinelibrary.turtle;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import org.sunshinelibrary.turtle.dashboard.ServiceButton;
 import org.sunshinelibrary.turtle.models.WebApp;
 import org.sunshinelibrary.turtle.syncservice.AppSyncService;
 import org.sunshinelibrary.turtle.taskmanager.TaskManagerCallback;
 import org.sunshinelibrary.turtle.taskmanager.TaskWithResult;
+import org.sunshinelibrary.turtle.utils.ConnectionState;
+import org.sunshinelibrary.turtle.utils.DateFormater;
+import org.sunshinelibrary.turtle.utils.TurtleInfoUtils;
 import org.sunshinelibrary.turtle.webservice.RestletWebService;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -23,12 +29,8 @@ public class MainActivity extends Activity {
     TimerTask updateServiceStatus;
     ServiceButton syncButton;
     ServiceButton webButton;
-
-    public static String getNowTime() {
-        Calendar cal = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("MM月dd日 HH:mm:ss");
-        return "最后更新时间: " + sdf.format(cal.getTime());
-    }
+    Button checkServerButton;
+//    TextView serverState;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,6 +49,10 @@ public class MainActivity extends Activity {
 
         webButton = ((ServiceButton) findViewById(R.id.webbutton));
         webButton.init(RestletWebService.class);
+
+        checkServerButton = ((Button) findViewById(R.id.checkserver));
+
+        findViewById(R.id.checkserver).setOnClickListener(new CheckServer());
     }
 
     @Override
@@ -70,6 +76,32 @@ public class MainActivity extends Activity {
         timer.scheduleAtFixedRate(updateServiceStatus, 0, 3000);
     }
 
+    public class CheckServer implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            checkServerButton.setEnabled(false);
+            new CheckServerTask().execute();
+        }
+
+        public class CheckServerTask extends AsyncTask<Void, Void, ConnectionState> {
+
+            @Override
+            protected ConnectionState doInBackground(Void... voids) {
+                return TurtleInfoUtils.getLocalServerState();
+            }
+
+            @Override
+            protected void onPostExecute(ConnectionState connectionState) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setMessage(connectionState.toString())
+                        .setTitle("服务器检查结果"
+                        );
+                builder.create().show();
+                checkServerButton.setEnabled(true);
+            }
+        }
+    }
+
     class UpdateServiceTask extends TimerTask {
 
         public void run() {
@@ -79,13 +111,17 @@ public class MainActivity extends Activity {
                 public void run() {
                     syncButton.refresh();
                     webButton.refresh();
-                    ((TextView) findViewById(R.id.textView)).setText(getNowTime());
+                    ((TextView) findViewById(R.id.textView)).setText(
+                            "本机IP地址: " + TurtleInfoUtils.getIPAddress(true) +
+                                    "\t服务状态最后更新时间: " +
+                                    DateFormater.format(Calendar.getInstance().getTimeInMillis()));
 //                    ((TextView) findViewById(R.id.turtleInfo)).setText(turtleInfo);
                     TaskWithResult currentTask = TurtleManagers.taskManager.peek();
                     if (currentTask != null) {
                         WebApp app = currentTask.getWebApp();
+                        int progress = currentTask.getProgress();
                         ((TextView) findViewById(R.id.currentTask)).setText(
-                                app.download_url + ":" + currentTask.getProgress());
+                                app.download_url + ":" + progress);
                     } else {
                         ((TextView) findViewById(R.id.currentTask)).setText("");
                     }

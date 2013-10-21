@@ -1,10 +1,7 @@
 package org.sunshinelibrary.turtle.userdatamanager;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.text.TextUtils;
-import android.widget.Toast;
 import com.google.gson.Gson;
 import com.squareup.tape.FileObjectQueue;
 import org.apache.commons.codec.binary.Base32;
@@ -30,7 +27,7 @@ public class TapeUserDataManager implements UserDataManager {
     private String accessToken = null;
 
     public TapeUserDataManager(Context context) throws IOException {
-        accessToken = getAccessToken(context);
+        accessToken = Configurations.getAccessToken();
         if (accessToken == null) {
             throw new IOException("access token is null");
         }
@@ -47,22 +44,12 @@ public class TapeUserDataManager implements UserDataManager {
         }
     }
 
-    public static String getAccessToken(Context context) {
-        String access_token = null;
-        try {
-            Context mContext = context.createPackageContext("org.sunshinelibrary.login", Context.MODE_MULTI_PROCESS);
-            SharedPreferences preferences = mContext.getSharedPreferences("LOGIN", Context.MODE_MULTI_PROCESS);
-            access_token = preferences.getString("ACCESS_TOKEN", "");
-        } catch (PackageManager.NameNotFoundException e) {
-            Toast.makeText(context, "无法获得用户AccessToken，将使用临时AccessToken", Toast.LENGTH_LONG).show();
-            Logger.e("cannot get access token, use test instead");
-            access_token = "test";
-        }
-        return access_token;
-    }
-
     public static String getUserDataId(String key) {
         return (TextUtils.isEmpty(key)) ? null : new Base32().encodeAsString(key.getBytes());
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
     @Override

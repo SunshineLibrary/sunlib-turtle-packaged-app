@@ -1,5 +1,7 @@
 package org.sunshinelibrary.turtle.utils;
 
+import android.content.Context;
+
 import java.io.File;
 
 /**
@@ -12,13 +14,15 @@ public class Configurations {
     public static final String LAUNCHER_APP_FILE = "0.zip";
     public static final String storageBase = "/sdcard/turtle/";
     public static final int SYNC_INTERVAL = 30 * 1000;
-    public static String serverHost = "http://192.168.1.10:3000";
-    //    public static String serverHost = "http://192.168.3.14:3000";
-//    public static String serverHost = "http://192.168.3.100";
+    //    public static String serverHost = "http://192.168.1.10:3000";
+//        public static String serverHost = "http://192.168.3.14:3000";
+    public static String serverHost = "http://192.168.3.100";
+    public static String LOCAL_SERVER_HOST = "http://192.168.3.100";
     public static int localPort = 9460;
     public static String localHost = "http://127.0.0.1:" + localPort;
+    public static String accessToken;
 
-    public static void init() {
+    public static void init(Context context) {
         boolean success = false;
         Logger.i("init all folders," + storageBase);
         success = new File(getStorageBase()).mkdirs();
@@ -29,6 +33,11 @@ public class Configurations {
         Logger.i("create meta base," + success);
         success = new File(getUserDataBase()).mkdirs();
         Logger.i("create userdata base," + success);
+        accessToken = TurtleInfoUtils.getAccessToken(context);
+    }
+
+    public static String getAccessToken() {
+        return accessToken;
     }
 
     public static String getServerHost() {
@@ -44,10 +53,6 @@ public class Configurations {
         }
         return null;
     }
-//
-//    public static String getUserDataAPI(String path){
-//
-//    }
 
     public static String getStorageBase() {
         return storageBase;

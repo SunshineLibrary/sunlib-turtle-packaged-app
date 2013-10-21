@@ -1,6 +1,5 @@
 package org.sunshinelibrary.turtle.taskmanager;
 
-import android.content.Context;
 import android.os.SystemClock;
 import org.sunshinelibrary.turtle.TurtleManagers;
 import org.sunshinelibrary.turtle.appmanager.WebAppException;
@@ -12,7 +11,7 @@ import org.sunshinelibrary.turtle.utils.Logger;
  * Date: 10/14/13
  * Time: 9:16 PM
  */
-public class DeleteTask extends WebAppTaskContext {
+public class DeleteTask extends WebAppTask {
     WebApp app;
     boolean isOk = false;
     Object result = null;

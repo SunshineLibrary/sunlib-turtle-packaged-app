@@ -3,9 +3,9 @@ package org.sunshinelibrary.turtle;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.SystemClock;
 import org.sunshinelibrary.turtle.syncservice.AppSyncService;
 import org.sunshinelibrary.turtle.utils.Logger;
+import org.sunshinelibrary.turtle.webservice.RestletWebService;
 
 /**
  * Created with IntelliJ IDEA.
@@ -22,7 +22,10 @@ public class SyncTriggerReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Logger.i("trigger sync");
         Intent syncIntent = new Intent(context, AppSyncService.class);
-        syncIntent.setAction("do_" + SystemClock.currentThreadTimeMillis());
         context.startService(syncIntent);
+
+        Intent webIntent = new Intent(context, RestletWebService.class);
+        context.startService(webIntent);
+
     }
 }

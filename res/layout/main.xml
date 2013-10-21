@@ -10,9 +10,9 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
         <LinearLayout
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:gravity="center_horizontal" android:weightSum="2">
+                android:layout_height="wrap_content" android:gravity="center_horizontal" android:weightSum="3">
             <org.sunshinelibrary.turtle.dashboard.ServiceButton
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -23,46 +23,62 @@
                     android:layout_height="wrap_content"
                     android:text="WebService"
                     android:id="@+id/webbutton" android:layout_gravity="center" android:layout_weight="1"/>
+            <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="检查网络连接"
+                    android:id="@+id/checkserver" android:layout_gravity="center" android:layout_weight="1"/>
         </LinearLayout>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/textView2"/>
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="当前任务"
+                    android:id="@+id/textView4" android:textStyle="bold" android:textSize="24dp"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/currentTask"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Turtle信息"
+                    android:id="@+id/textView3" android:textStyle="bold" android:visibility="invisible"/>
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/turtleInfo"/>
+        </LinearLayout>
         <TableLayout
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent">
             <TableRow
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent">
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="当前任务"
-                        android:id="@+id/textView4"/>
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/currentTask"/>
             </TableRow>
             <TableRow
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent">
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="TurtleInfo"
-                        android:id="@+id/textView3"/>
-                <TextView
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/turtleInfo"/>
             </TableRow>
         </TableLayout>
     </LinearLayout>
-    <TextView
+    <LinearLayout
+            android:orientation="vertical"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/textView"
-            android:layout_alignParentBottom="true" android:text="最后更新时间" android:gravity="center_horizontal"/>
+            android:layout_height="wrap_content" android:layout_alignParentBottom="true">
+        <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView"
+                android:layout_alignParentBottom="true" android:text="最后更新时间" android:gravity="center_horizontal"
+                android:textSize="18dp"/>
+    </LinearLayout>
 </RelativeLayout>
 

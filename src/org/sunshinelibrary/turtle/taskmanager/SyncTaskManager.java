@@ -13,16 +13,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class SyncTaskManager implements TaskManager {
 
     List<TaskManagerCallback> callbackList = new ArrayList<TaskManagerCallback>();
-    private ConcurrentLinkedQueue<WebAppTaskContext> tasks = new ConcurrentLinkedQueue<WebAppTaskContext>();
+    private ConcurrentLinkedQueue<WebAppTask> tasks = new ConcurrentLinkedQueue<WebAppTask>();
 
     @Override
-    public WebAppTaskContext peek() {
+    public WebAppTask peek() {
         return tasks.peek();
     }
 
     @Override
-    public WebAppTaskContext remove() {
-        WebAppTaskContext ret = tasks.remove();
+    public WebAppTask remove() {
+        WebAppTask ret = tasks.remove();
         for (TaskManagerCallback callback : callbackList) {
             callback.onTaskChange();
         }
@@ -30,7 +30,7 @@ public class SyncTaskManager implements TaskManager {
     }
 
     @Override
-    public void addTask(WebAppTaskContext task) {
+    public void addTask(WebAppTask task) {
         tasks.add(task);
         for (TaskManagerCallback callback : callbackList) {
             callback.onTaskChange();
@@ -43,7 +43,7 @@ public class SyncTaskManager implements TaskManager {
     }
 
     @Override
-    public Queue<WebAppTaskContext> getAllTask() {
+    public Queue<WebAppTask> getAllTask() {
         return tasks;
     }
 

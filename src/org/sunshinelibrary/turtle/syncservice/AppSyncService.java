@@ -12,7 +12,7 @@ import org.sunshinelibrary.turtle.TurtleManagers;
 import org.sunshinelibrary.turtle.models.WebApp;
 import org.sunshinelibrary.turtle.taskmanager.DeleteTask;
 import org.sunshinelibrary.turtle.taskmanager.DownloadTask;
-import org.sunshinelibrary.turtle.taskmanager.WebAppTaskContext;
+import org.sunshinelibrary.turtle.taskmanager.WebAppTask;
 import org.sunshinelibrary.turtle.userdatamanager.UserDataTask;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Diff;
@@ -118,7 +118,7 @@ public class AppSyncService extends Service {
             // do it one by one
             int total = 0;
             while (true) {
-                WebAppTaskContext task = TurtleManagers.taskManager.peek();
+                WebAppTask task = TurtleManagers.taskManager.peek();
                 total++;
                 if (task == null) {
                     break;

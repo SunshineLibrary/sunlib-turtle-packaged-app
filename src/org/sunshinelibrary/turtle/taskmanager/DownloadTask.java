@@ -15,7 +15,7 @@ import java.net.URLConnection;
  * Date: 10/14/13
  * Time: 9:16 PM
  */
-public class DownloadTask extends WebAppTaskContext {
+public class DownloadTask extends WebAppTask {
 
     public DownloadTask(WebApp newApp) {
         app = newApp;

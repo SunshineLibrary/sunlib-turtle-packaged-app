@@ -10,7 +10,7 @@ import org.sunshinelibrary.turtle.models.WebApp;
  * Time: 1:22 AM
  * To change this template use File | Settings | File Templates.
  */
-public abstract class WebAppTaskContext implements TaskWithResult<Context> {
+public abstract class WebAppTask implements TaskWithResult<Context> {
     /**
      * Task state
      */

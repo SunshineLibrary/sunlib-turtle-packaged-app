@@ -194,6 +194,8 @@ public class RestletWebService extends Service implements WebService {
                 ret = getRunningApps();
             } else if ("/debug/userdata".equals(requestPath)) {
                 ret = getAllUserData();
+            } else if ("/debug/access_token".equals(requestPath)) {
+                ret = getAccessToken();
             }
             response.setEntity(new StringRepresentation(ret));
         }
@@ -205,6 +207,11 @@ public class RestletWebService extends Service implements WebService {
         public String getAllUserData() {
             return new Gson().toJson(TurtleManagers.userDataManager.getAll());
         }
+
+        public String getAccessToken() {
+            return Configurations.getAccessToken();
+        }
+
     }
 
     public static class FileApplication extends Application {
