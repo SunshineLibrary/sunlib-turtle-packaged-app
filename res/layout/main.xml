@@ -10,24 +10,31 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
         <LinearLayout
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:gravity="center_horizontal" android:weightSum="3">
+                android:layout_height="wrap_content" android:gravity="center_horizontal" android:weightSum="4">
             <org.sunshinelibrary.turtle.dashboard.ServiceButton
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="fill_parent"
                     android:text="SyncService"
-                    android:id="@+id/syncbutton" android:layout_weight="1"/>
+                    android:id="@+id/syncbutton" android:layout_weight="1" android:textStyle="bold"/>
             <org.sunshinelibrary.turtle.dashboard.ServiceButton
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="fill_parent"
                     android:text="WebService"
-                    android:id="@+id/webbutton" android:layout_gravity="center" android:layout_weight="1"/>
+                    android:id="@+id/webbutton" android:layout_gravity="center" android:layout_weight="1"
+                    android:textStyle="bold"/>
             <Button
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="fill_parent"
                     android:text="检查网络连接"
-                    android:id="@+id/checkserver" android:layout_gravity="center" android:layout_weight="1"/>
+                    android:id="@+id/checkserver" android:layout_gravity="center" android:layout_weight="1"
+                    android:textStyle="bold"/>
+            <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="fill_parent"
+                    android:text="手动刷新"
+                    android:id="@+id/refresh" android:layout_weight="1" android:textStyle="bold"/>
         </LinearLayout>
         <TextView
                 android:layout_width="wrap_content"
@@ -41,7 +48,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="AccessToken"
-                    android:id="@+id/textView1" android:textSize="24dp"/>
+                    android:id="@+id/textView1" android:textSize="24dp" android:textStyle="bold"/>
             <TextView
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
@@ -59,8 +66,43 @@
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="同步状态"
+                    android:id="@+id/textView5" android:textSize="24dp" android:layout_marginTop="20dp"
+                    android:textStyle="bold"/>
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content">
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="最后成功同步: "
+                        android:id="@+id/textView7" android:textSize="20dp"/>
+                <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/lastSuccessSync" android:textSize="20dp"/>
+            </LinearLayout>
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content">
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="最后同步时间: "
+                        android:id="@+id/textView6" android:textSize="20dp"/>
+                <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/lastSync" android:textSize="20dp"/>
+            </LinearLayout>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="Turtle信息"
-                    android:id="@+id/textView3" android:textStyle="bold" android:visibility="invisible"/>
+                    android:id="@+id/textView3" android:textStyle="bold" android:visibility="invisible"
+                    android:textSize="20dp"/>
             <TextView
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
@@ -89,6 +131,12 @@
                 android:id="@+id/textView"
                 android:layout_alignParentBottom="true" android:text="最后更新时间" android:gravity="center_horizontal"
                 android:textSize="18dp"/>
+        <Button
+                android:layout_width="fill_parent"
+                android:layout_height="40dp"
+                android:text="强制关闭"
+                android:id="@+id/shutdown" android:layout_gravity="center" android:textSize="24dp"
+                android:background="#8d000a" android:textColor="#ffffff"/>
     </LinearLayout>
 </RelativeLayout>
 
