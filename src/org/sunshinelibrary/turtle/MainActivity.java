@@ -2,7 +2,6 @@ package org.sunshinelibrary.turtle;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -80,24 +79,24 @@ public class MainActivity extends Activity {
         @Override
         public void onClick(View view) {
             checkServerButton.setEnabled(false);
-            new CheckServerTask().execute();
+            new Thread(new CheckServerTask()).start();
         }
 
-        public class CheckServerTask extends AsyncTask<Void, Void, ConnectionState> {
+        public class CheckServerTask implements Runnable{
 
             @Override
-            protected ConnectionState doInBackground(Void... voids) {
-                return TurtleInfoUtils.getLocalServerState();
-            }
-
-            @Override
-            protected void onPostExecute(ConnectionState connectionState) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setMessage(connectionState.toString())
-                        .setTitle("服务器检查结果"
-                        );
-                builder.create().show();
-                checkServerButton.setEnabled(true);
+            public void run() {
+                final ConnectionState connectionState = TurtleInfoUtils.getLocalServerState();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setMessage(connectionState.toString())
+                                .setTitle("服务器检查结果");
+                        builder.create().show();
+                        checkServerButton.setEnabled(true);
+                    }
+                });
             }
         }
     }
@@ -123,7 +122,7 @@ public class MainActivity extends Activity {
                         ((TextView) findViewById(R.id.currentTask)).setText(
                                 app.download_url + ":" + progress);
                     } else {
-                        ((TextView) findViewById(R.id.currentTask)).setText("");
+                        ((TextView) findViewById(R.id.currentTask)).setText("当前无任务运行");
                     }
                 }
             });

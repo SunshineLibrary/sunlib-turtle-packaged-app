@@ -82,6 +82,7 @@ public class TurtleInfoUtils {
         try {
             URL url = new URL(Configurations.LOCAL_SERVER_HOST);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(5000);
             connection.setReadTimeout(5000);
             try {
                 InputStream in = new BufferedInputStream(connection.getInputStream());
