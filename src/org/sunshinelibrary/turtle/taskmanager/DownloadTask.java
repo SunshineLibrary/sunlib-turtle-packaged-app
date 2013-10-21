@@ -5,6 +5,7 @@ import org.apache.commons.io.FileUtils;
 import org.sunshinelibrary.turtle.TurtleManagers;
 import org.sunshinelibrary.turtle.appmanager.WebAppException;
 import org.sunshinelibrary.turtle.models.WebApp;
+import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Logger;
 
 import java.io.*;
@@ -54,6 +55,9 @@ public class DownloadTask extends WebAppTask {
         File tmpFile = null;
         try {
             state = "downloading";
+            app.download_url = Configurations.isInLocalNetwork() ?
+                    app.download_url :
+                    Configurations.convertLocalUrlToInternetUrl(app.download_url);
             // Download the app to temp directory
             tmpFile = File.createTempFile("turtle_", ".tmp");
             URL url = new URL(app.download_url);

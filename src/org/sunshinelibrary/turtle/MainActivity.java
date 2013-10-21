@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -55,7 +56,7 @@ public class MainActivity extends Activity {
         checkServerButton = ((Button) findViewById(R.id.checkserver));
 
         findViewById(R.id.checkserver).setOnClickListener(new CheckServer());
-        findViewById(R.id.refresh).setOnClickListener(new RefreshListener());
+        findViewById(R.id.openbrowser).setOnClickListener(new OpenBrowserListener());
         findViewById(R.id.shutdown).setOnClickListener(new ShutdownListener());
     }
 
@@ -109,12 +110,13 @@ public class MainActivity extends Activity {
         }
     }
 
-    public class RefreshListener implements View.OnClickListener {
+    public class OpenBrowserListener implements View.OnClickListener {
 
         @Override
         public void onClick(View view) {
-            findViewById(R.id.refresh).setEnabled(false);
-            new UpdateServiceTask().run();
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://127.0.0.1:9460"));
+            browserIntent.setPackage("com.android.chrome");
+            startActivity(browserIntent);
         }
     }
 
@@ -175,7 +177,6 @@ public class MainActivity extends Activity {
                     } else {
                         ((TextView) findViewById(R.id.currentTask)).setText("当前无任务运行");
                     }
-                    findViewById(R.id.refresh).setEnabled(true);
                 }
             });
         }

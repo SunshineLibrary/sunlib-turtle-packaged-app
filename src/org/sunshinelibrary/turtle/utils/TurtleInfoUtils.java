@@ -77,10 +77,17 @@ public class TurtleInfoUtils {
     }
 
     public static ConnectionState getLocalServerState() {
-        ConnectionState ret = new ConnectionState();
-        ret.checkTime = Calendar.getInstance().getTimeInMillis();
+        String localServer = Configurations.isInLocalNetwork() ?
+                Configurations.LOCAL_SERVER_HOST :
+                Configurations.serverHost;
+
+        ConnectionState ret = new ConnectionState(
+                localServer,
+                Calendar.getInstance().getTimeInMillis(),
+                false,
+                0);
         try {
-            URL url = new URL(Configurations.LOCAL_SERVER_HOST);
+            URL url = new URL(ret.targetAPI);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(5000);
             connection.setReadTimeout(5000);
