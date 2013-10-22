@@ -107,19 +107,14 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/turtleInfo"/>
+            <Button
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="删除所有用户数据"
+                    android:id="@+id/deleteUserData"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"/>
         </LinearLayout>
-        <TableLayout
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent">
-            <TableRow
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent">
-            </TableRow>
-            <TableRow
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent">
-            </TableRow>
-        </TableLayout>
     </LinearLayout>
     <LinearLayout
             android:orientation="vertical"

@@ -1,6 +1,8 @@
 package org.sunshinelibrary.turtle.utils;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import java.io.File;
 
@@ -16,16 +18,17 @@ public class Configurations {
     public static final String LAUNCHER_APP_FILE = "0.zip";
     public static final String storageBase = "/sdcard/turtle/";
     public static final int SYNC_INTERVAL = 30 * 1000;
-    //    public static String serverHost = "http://192.168.1.10:3000";
+        public static String serverHost = "http://192.168.1.8:3000";
 //        public static String serverHost = "http://192.168.3.14:3000";
 //    public static String serverHost = "http://192.168.3.100";
-    public static String serverHost = "http://shuwu.sunshine-library.org";
+    //    public static String serverHost = "http://shuwu.sunshine-library.org";
     public static String LOCAL_SERVER_HOST = "http://192.168.3.100";
     public static int localPort = 9460;
     public static String localHost = "http://127.0.0.1:" + localPort;
     public static String accessToken;
     public static long lastSync;
     public static long lastSuccessSync;
+    private static Context context;
 
     public static boolean isInLocalNetwork() {
         return LOCAL_SERVER_HOST.equals(serverHost);
@@ -36,6 +39,7 @@ public class Configurations {
     }
 
     public static void init(Context context) {
+        Configurations.context = context;
         boolean success = false;
         Logger.i("init all folders," + storageBase);
         success = new File(getStorageBase()).mkdirs();
@@ -85,6 +89,13 @@ public class Configurations {
 
     public static String getUserDataBase() {
         return getStorageBase() + "/userdata";
+    }
+
+    public static boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     public static enum SunAPI {

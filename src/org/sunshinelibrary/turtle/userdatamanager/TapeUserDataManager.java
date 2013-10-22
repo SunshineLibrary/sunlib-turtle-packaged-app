@@ -112,4 +112,28 @@ public class TapeUserDataManager implements UserDataManager {
         }
         return ret;
     }
+
+    @Override
+    public int deleteAll() {
+        File[] files = userDataFolder.listFiles();
+        Logger.i("delete all user data in local files");
+        for (File file : files) {
+            try {
+                FileUtils.forceDelete(file);
+                Logger.i("delete user data," + file.getName());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        Logger.i("delete all user data in queue");
+        while (true) {
+            UserDataTask task = userDataQueue.peek();
+            if (task == null) {
+                break;
+            }
+            userDataQueue.remove();
+        }
+        Logger.i("all user data deleted");
+        return 0;
+    }
 }

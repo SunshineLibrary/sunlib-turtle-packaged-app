@@ -54,7 +54,7 @@ public class AppSyncService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (!running) {
+        if (!running && Configurations.isOnline()) {
             new SyncTask().execute();
         }
         return super.onStartCommand(intent, flags, startId);

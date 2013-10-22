@@ -17,4 +17,5 @@ public interface UserDataManager {
 
     public Map<String, String> getAll();
 
+    public int deleteAll();
 }

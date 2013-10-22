@@ -58,6 +58,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.checkserver).setOnClickListener(new CheckServer());
         findViewById(R.id.openbrowser).setOnClickListener(new OpenBrowserListener());
         findViewById(R.id.shutdown).setOnClickListener(new ShutdownListener());
+        findViewById(R.id.deleteUserData).setOnClickListener(new DeleteUserDataListener());
     }
 
     @Override
@@ -79,6 +80,14 @@ public class MainActivity extends Activity {
         timer = new Timer();
         updateServiceStatus = new UpdateServiceTask();
         timer.scheduleAtFixedRate(updateServiceStatus, 0, 10000);
+    }
+
+    public class DeleteUserDataListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View view) {
+            TurtleManagers.userDataManager.deleteAll();
+        }
     }
 
     public class ShutdownListener implements View.OnClickListener {
