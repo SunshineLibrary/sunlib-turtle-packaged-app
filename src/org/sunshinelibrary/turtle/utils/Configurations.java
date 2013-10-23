@@ -18,9 +18,9 @@ public class Configurations {
     public static final String LAUNCHER_APP_FILE = "0.zip";
     public static final String storageBase = "/sdcard/turtle/";
     public static final int SYNC_INTERVAL = 30 * 1000;
-        public static String serverHost = "http://192.168.1.8:3000";
-//        public static String serverHost = "http://192.168.3.14:3000";
-//    public static String serverHost = "http://192.168.3.100";
+    //        public static String serverHost = "http://192.168.1.8:3000";
+    public static String serverHost = "http://192.168.3.22:3000";
+    //    public static String serverHost = "http://192.168.3.100";
     //    public static String serverHost = "http://shuwu.sunshine-library.org";
     public static String LOCAL_SERVER_HOST = "http://192.168.3.100";
     public static int localPort = 9460;

@@ -20,7 +20,6 @@ import org.sunshinelibrary.turtle.utils.DiffManifest;
 import org.sunshinelibrary.turtle.utils.Logger;
 
 import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
@@ -142,43 +141,44 @@ public class AppSyncService extends Service {
                 TurtleManagers.taskManager.remove();
             }
 
-            UserDataTask task = TurtleManagers.userDataManager.getUserDataQueue().peek();
-            if (task != null) {
-                while (true) {
-                    task = TurtleManagers.userDataManager.getUserDataQueue().peek();
+//            UserDataTask task = TurtleManagers.userDataManager.getUserDataQueue().peek();
+//            if (task != null) {
+            while (true) {
+                try {
+                    UserDataTask task = TurtleManagers.userDataManager.getUserDataQueue().peek();
                     Logger.i("ready to send user data");
                     if (task == null) {
                         break;
                     }
                     URL url = null;
-                    try {
-                        url = new URL(Configurations.getSunlibAPI(Configurations.SunAPI.USERDATA) + task.target);
-                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                        conn.setRequestMethod("POST");
-                        conn.setDoInput(true);
-                        conn.setDoOutput(true);
-                        conn.setRequestProperty("Content-Type", "application/json");
-                        conn.setRequestProperty("Access-Token", task.accessToken);
+                    url = new URL(Configurations.getSunlibAPI(Configurations.SunAPI.USERDATA) + task.target);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setDoInput(true);
+                    conn.setDoOutput(true);
+                    conn.setRequestProperty("Content-Type", "application/json");
+                    conn.setRequestProperty("Access-Token", task.accessToken);
 
-                        OutputStream os = conn.getOutputStream();
-                        BufferedWriter writer = new BufferedWriter(
-                                new OutputStreamWriter(os, "UTF-8"));
-                        writer.write(task.content);
-                        writer.flush();
-                        writer.close();
-                        os.close();
-                        conn.connect();
-                        Logger.i(conn.getResponseMessage());
-                        if (conn.getResponseCode() != 200) {
-                            Logger.e("send userdata failed,wait for next sync");
-                            break;
-                        }
-                        TurtleManagers.userDataManager.getUserDataQueue().remove();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    OutputStream os = conn.getOutputStream();
+                    BufferedWriter writer = new BufferedWriter(
+                            new OutputStreamWriter(os, "UTF-8"));
+                    writer.write(task.content);
+                    writer.flush();
+                    writer.close();
+                    os.close();
+                    conn.connect();
+                    Logger.i(conn.getResponseMessage());
+                    if (conn.getResponseCode() != 200) {
+                        Logger.e("send userdata failed,wait for next sync");
+                        break;
                     }
+                    TurtleManagers.userDataManager.getUserDataQueue().remove();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    break;
                 }
             }
+//            }
             Logger.i("onPostExecute complete, success task " + successTask);
             running = false;
             return 0;
