@@ -15,4 +15,8 @@ public class DiffManifest {
     public List<WebApp> newApps = new ArrayList<WebApp>();
     public List<WebApp> deletedApps = new ArrayList<WebApp>();
 
+    @Override
+    public String toString() {
+        return "new apps:" + newApps + "\r\n" + "deleted apps:" + deletedApps;
+    }
 }

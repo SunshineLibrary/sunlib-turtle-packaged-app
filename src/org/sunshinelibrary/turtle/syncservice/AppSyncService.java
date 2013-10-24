@@ -112,6 +112,8 @@ public class AppSyncService extends Service {
                     TurtleManagers.appManager.getAppsMap(),
                     remoteApps);
 
+            Logger.i("diff manifest:" + diffManifest);
+
             for (WebApp newApp : diffManifest.newApps) {
                 TurtleManagers.taskManager.addTask(new DownloadTask(newApp));
             }
