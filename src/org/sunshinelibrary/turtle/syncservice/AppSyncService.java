@@ -20,6 +20,7 @@ import org.sunshinelibrary.turtle.utils.DiffManifest;
 import org.sunshinelibrary.turtle.utils.Logger;
 
 import java.io.BufferedWriter;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
@@ -63,11 +64,14 @@ public class AppSyncService extends Service {
 
         public Map<String, WebApp> getRemoteApps() {
             Map<String, WebApp> ret = null;
-            HttpURLConnection urlConnection = null;
+            InputStream in = null;
             try {
                 URL url = new URL(Configurations.getSunlibAPI(Configurations.SunAPI.APPSJSON));
-                urlConnection = (HttpURLConnection) url.openConnection();
-                String manifest = IOUtils.toString(urlConnection.getInputStream());
+                in = url.openStream();
+                // TODO
+                // why use url.getConnection(..).getStream() ???
+                // and get json with IOUtils.toString may cause exception
+                String manifest = IOUtils.toString(in);
                 Type type = new TypeToken<List<WebApp>>() {
                 }.getType();
                 List<WebApp> remoteApps = new Gson().fromJson(manifest, type);
@@ -78,9 +82,9 @@ public class AppSyncService extends Service {
             } catch (Exception e) {
                 Logger.e("get remote apps failed," + e.getMessage());
             } finally {
-                if (urlConnection != null) {
+                if (in != null) {
                     try {
-                        urlConnection.disconnect();
+                        IOUtils.closeQuietly(in);
                     } catch (Exception e) {
                         e.printStackTrace();
                         Logger.e("close connection failed");
