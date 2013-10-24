@@ -29,6 +29,7 @@ public class GsonConverter<T> implements FileObjectQueue.Converter<T> {
     public void toStream(T object, OutputStream bytes) throws IOException {
         Writer writer = new OutputStreamWriter(bytes);
         gson.toJson(object, writer);
+        writer.flush();
         writer.close();
     }
 }
