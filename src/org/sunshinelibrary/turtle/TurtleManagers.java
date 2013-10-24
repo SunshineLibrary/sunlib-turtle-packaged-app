@@ -11,6 +11,7 @@ import org.sunshinelibrary.turtle.userdatamanager.TapeUserDataManager;
 import org.sunshinelibrary.turtle.userdatamanager.UserDataManager;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Logger;
+
 import java.io.File;
 
 /**
@@ -34,7 +35,6 @@ public class TurtleManagers {
         } else {
             Logger.i("turtle already installed, maybe upgrade");
         }
-
 
         Configurations.init(context);
         appManager = new WebAppManager(context);

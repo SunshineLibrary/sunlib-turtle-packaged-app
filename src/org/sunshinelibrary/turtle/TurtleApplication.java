@@ -57,6 +57,9 @@ public class TurtleApplication extends Application {
         File tmpFile = File.createTempFile("turtle_", "tmp");
         FileUtils.copyInputStreamToFile(getAssets().open(Configurations.LAUNCHER_APP_FILE), tmpFile);
         TurtleManagers.appManager.installApp(tmpFile);
+        FileUtils.writeStringToFile(
+                new File(Configurations.getAppBase(), "heart"),
+                "window.isTurtleOnline = true; console.log('turtle is on');");
     }
 
     public void startIntervalAlarm() {

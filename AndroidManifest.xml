@@ -18,7 +18,8 @@
 
     <application android:label="@string/app_name"
                  android:icon="@drawable/ic_launcher"
-                 android:name=".TurtleApplication">
+                 android:name=".TurtleApplication"
+                 android:largeHeap="true">
         <receiver android:name=".SyncTriggerReceiver"
                   android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
