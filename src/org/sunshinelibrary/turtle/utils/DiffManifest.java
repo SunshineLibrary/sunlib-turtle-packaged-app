@@ -17,6 +17,6 @@ public class DiffManifest {
 
     @Override
     public String toString() {
-        return "new apps:" + newApps + "\r\n" + "deleted apps:" + deletedApps;
+        return "new:" + newApps + "," + "delete:" + deletedApps;
     }
 }

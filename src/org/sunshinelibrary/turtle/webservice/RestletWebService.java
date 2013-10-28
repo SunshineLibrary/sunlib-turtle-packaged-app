@@ -2,7 +2,9 @@ package org.sunshinelibrary.turtle.webservice;
 
 import android.app.Service;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.IBinder;
+import android.text.TextUtils;
 import com.android.internal.util.Predicate;
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
@@ -102,6 +104,8 @@ public class RestletWebService extends Service implements WebService {
                 response.setEntity(new StringRepresentation(ret));
             }
         });
+        router.attach("/reader", new ReaderRestlet());
+
         router.attach("/debug", new DebuggerRestlet());
 
         router.attach("/apps", new
@@ -310,6 +314,35 @@ public class RestletWebService extends Service implements WebService {
         public Restlet createInboundRoot() {
             router.setContext(getContext());
             return router;
+        }
+    }
+
+    public class ReaderRestlet extends Restlet {
+        @Override
+        public void handle(Request request, Response response) {
+            Form queryForm = request.getResourceRef().getQueryAsForm();
+            String type = queryForm.getFirst("type").getValue();
+            String url = queryForm.getFirst("url").getValue();
+            Logger.i("reader request," + type + "," + url);
+            if (TextUtils.isEmpty(url)) {
+                return;
+            }
+            if ("pdf".equals(type)) {
+                if (!url.startsWith("http://")) {
+                    url = Configurations.localHost + url;
+                }
+                url = Uri.encode(url, ",/?:@&=+$#");
+                Logger.i("open pdf:" + url);
+                try {
+                    Uri uri = Uri.parse(url);
+                    Intent readerIntent = new Intent(Intent.ACTION_VIEW, uri);
+                    readerIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    readerIntent.setPackage("com.adobe.reader");
+                    startActivity(readerIntent);
+                } catch (Exception e) {
+                    Logger.e("start reader failed," + url);
+                }
+            }
         }
     }
 

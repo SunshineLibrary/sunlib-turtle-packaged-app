@@ -38,10 +38,18 @@ public class TurtleApplication extends Application {
                 initLauncherApp();
             }
         } catch (Exception e) {
-            Logger.e("turtle initialized incorrect");
-            e.printStackTrace();
+            Logger.e("turtle initialized incorrect," + e.getMessage());
             Toast.makeText(this, "turtle initialized incorrect", Toast.LENGTH_LONG).show();
-            throw new RuntimeException();
+            throw new RuntimeException(e);
+        }
+
+        try {
+            FileUtils.writeStringToFile(
+                    new File(Configurations.getAppBase(), "heart"),
+                    "window.isTurtleOnline = true; console.log('turtle is on');");
+        } catch (IOException e) {
+            Logger.e("cannot write bootleader response");
+            throw new RuntimeException(e);
         }
 
         Intent serverIntent = new Intent(this, RestletWebService.class);
@@ -57,9 +65,6 @@ public class TurtleApplication extends Application {
         File tmpFile = File.createTempFile("turtle_", "tmp");
         FileUtils.copyInputStreamToFile(getAssets().open(Configurations.LAUNCHER_APP_FILE), tmpFile);
         TurtleManagers.appManager.installApp(tmpFile);
-        FileUtils.writeStringToFile(
-                new File(Configurations.getAppBase(), "heart"),
-                "window.isTurtleOnline = true; console.log('turtle is on');");
     }
 
     public void startIntervalAlarm() {

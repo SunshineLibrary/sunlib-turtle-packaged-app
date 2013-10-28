@@ -178,7 +178,7 @@ public class AppSyncService extends Service {
                         Logger.e("send userdata failed,wait for next sync");
                         break;
                     }
-                    TurtleManagers.userDataManager.getUserDataQueue().remove();
+                     TurtleManagers.userDataManager.getUserDataQueue().remove();
                 } catch (Exception e) {
                     e.printStackTrace();
                     break;

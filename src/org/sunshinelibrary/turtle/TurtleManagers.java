@@ -25,13 +25,15 @@ public class TurtleManagers {
     public static UserDataManager userDataManager;
 
     public static void init(Context context) throws Exception {
+        Logger.i("this is version 1");
         SharedPreferences settings = context.getSharedPreferences(Configurations.TURTLE_SHARED_PREFERENCE, 0);
         if (!settings.getBoolean(Configurations.TURTLE_SHARED_PREFERENCE_INIT, false)) {
             // Delete all turtle folder exists
             FileUtils.deleteDirectory(new File(Configurations.getStorageBase()));
             Logger.i("first start, clean all files in turtle folder");
-            settings.edit().putBoolean(Configurations.TURTLE_SHARED_PREFERENCE_INIT, true);
-            settings.edit().commit();
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean(Configurations.TURTLE_SHARED_PREFERENCE_INIT, true);
+            editor.commit();
         } else {
             Logger.i("turtle already installed, maybe upgrade");
         }

@@ -40,6 +40,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        Configurations.mainActivity = this;
+
         TurtleManagers.taskManager.register(new TaskManagerCallback() {
             @Override
             public void onTaskChange() {
