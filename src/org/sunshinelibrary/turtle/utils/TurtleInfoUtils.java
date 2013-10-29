@@ -77,9 +77,7 @@ public class TurtleInfoUtils {
     }
 
     public static ConnectionState getLocalServerState() {
-        String localServer = Configurations.isInLocalNetwork() ?
-                Configurations.LOCAL_SERVER_HOST :
-                Configurations.serverHost;
+        String localServer = Configurations.serverHost;
 
         ConnectionState ret = new ConnectionState(
                 localServer,

@@ -20,7 +20,7 @@ public class Configurations {
     public static final String LAUNCHER_APP_FILE = "0.zip";
     public static final String storageBase = "/sdcard/turtle";
     public static final int SYNC_INTERVAL = 30 * 1000;
-            public static String serverHost = "http://192.168.3.12:3000";
+            public static String serverHost = "http://192.168.3.100:9460";
 //    public static String serverHost = "http://192.168.3.26:3000";
     //    public static String serverHost = "http://192.168.3.100";
     //    public static String serverHost = "http://shuwu.sunshine-library.org";
@@ -66,7 +66,7 @@ public class Configurations {
     public static String getSunlibAPI(SunAPI api) {
         if (SunAPI.APPSJSON.equals(api)) {
 //            return serverHost + "/apps.json";
-            return serverHost + "/exercise/v1/apps.json";
+            return serverHost + "/apps";
         } else if (SunAPI.USERDATA.equals(api)) {
             return serverHost;
         }

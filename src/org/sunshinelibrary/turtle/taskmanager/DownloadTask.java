@@ -55,11 +55,12 @@ public class DownloadTask extends WebAppTask {
         File tmpFile = null;
         try {
             state = "downloading";
-            app.download_url = Configurations.isInLocalNetwork() ?
-                    app.download_url :
-                    Configurations.convertLocalUrlToInternetUrl(app.download_url);
+//            app.download_url = app.download_url;
             // Download the app to temp directory
             tmpFile = File.createTempFile("turtle_", ".tmp");
+            if (!app.download_url.startsWith("http://")) {
+                app.download_url = Configurations.serverHost + app.download_url;
+            }
             URL url = new URL(app.download_url);
             downloadFileFromUrl(url, tmpFile);
 //            FileUtils.copyURLToFile(url, tmpFile);

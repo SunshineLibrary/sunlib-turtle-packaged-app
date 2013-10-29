@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import org.sunshinelibrary.turtle.dashboard.ServiceButton;
 import org.sunshinelibrary.turtle.models.WebApp;
 import org.sunshinelibrary.turtle.syncservice.AppSyncService;
@@ -61,6 +62,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.openbrowser).setOnClickListener(new OpenBrowserListener());
         findViewById(R.id.shutdown).setOnClickListener(new ShutdownListener());
         findViewById(R.id.deleteUserData).setOnClickListener(new DeleteUserDataListener());
+        findViewById(R.id.exercise).setOnClickListener(new OpenSunExercise());
     }
 
     @Override
@@ -81,19 +83,31 @@ public class MainActivity extends Activity {
         super.onResume();
         timer = new Timer();
         updateServiceStatus = new UpdateServiceTask();
-        timer.scheduleAtFixedRate(updateServiceStatus, 0, 10000);
+        timer.scheduleAtFixedRate(updateServiceStatus, 0, 3000);
     }
 
     public class DeleteUserDataListener implements View.OnClickListener {
-
         @Override
         public void onClick(View view) {
             TurtleManagers.userDataManager.deleteAll();
         }
     }
 
-    public class ShutdownListener implements View.OnClickListener {
+    public class OpenSunExercise implements View.OnClickListener {
 
+        @Override
+        public void onClick(View view) {
+            try {
+                Intent LaunchIntent = getPackageManager().getLaunchIntentForPackage("org.sunshinelibrary.exercise");
+                startActivity(LaunchIntent);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(MainActivity.this, "无法找到阳光提高班", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    public class ShutdownListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
             new AlertDialog.Builder(MainActivity.this)
@@ -103,7 +117,6 @@ public class MainActivity extends Activity {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             ActivityManager am = (ActivityManager) MainActivity.this.getSystemService(Context.ACTIVITY_SERVICE);
-//            am.killBackgroundProcesses(MainActivity.class.getPackage().getName());
                             List<ActivityManager.RunningServiceInfo> running = am.getRunningServices(Integer.MAX_VALUE);
                             List<String> servicesToStop = new ArrayList<String>();
                             servicesToStop.add(AppSyncService.class.getName());
@@ -172,9 +185,14 @@ public class MainActivity extends Activity {
                                     DateFormater.format(Calendar.getInstance().getTimeInMillis()));
 //                    ((TextView) findViewById(R.id.turtleInfo)).setText(turtleInfo);
                     ((TextView) findViewById(R.id.accessToken)).setText(Configurations.getAccessToken());
-                    ((TextView) findViewById(R.id.lastSuccessSync)).setText(
-                            ((Configurations.lastSuccessSync == 0) ? "尚未完成过同步" : DateFormater.format(Configurations.lastSuccessSync))
-                    );
+
+                    if (Configurations.lastSuccessSync == 0) {
+                        ((TextView) findViewById(R.id.lastSuccessSync)).setText("尚未完成过同步");
+                    } else {
+                        ((TextView) findViewById(R.id.lastSuccessSync)).setText(DateFormater.format(Configurations.lastSuccessSync));
+                        findViewById(R.id.exercise).setVisibility(View.VISIBLE);
+                    }
+
                     ((TextView) findViewById(R.id.lastSync)).setText(
                             ((Configurations.lastSync == 0) ? "尚未同步过" : DateFormater.format(Configurations.lastSync))
                     );
