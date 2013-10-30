@@ -23,6 +23,7 @@ public class TurtleManagers {
     public static AppManager appManager;
     public static TaskManager taskManager;
     public static UserDataManager userDataManager;
+    public static boolean isInit = false;
 
     public static void init(Context context) throws Exception {
         Logger.i("this is version 1");
@@ -42,6 +43,7 @@ public class TurtleManagers {
         appManager = new WebAppManager(context);
         taskManager = new SyncTaskManager();
         userDataManager = new TapeUserDataManager(context);
+        isInit = true;
     }
 
 }

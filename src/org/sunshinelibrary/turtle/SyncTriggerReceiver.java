@@ -16,8 +16,6 @@ import org.sunshinelibrary.turtle.webservice.RestletWebService;
  */
 public class SyncTriggerReceiver extends BroadcastReceiver {
 
-    private static final String DEBUG_TAG = "AlarmReceiver";
-
     @Override
     public void onReceive(Context context, Intent intent) {
         Logger.i("trigger sync");

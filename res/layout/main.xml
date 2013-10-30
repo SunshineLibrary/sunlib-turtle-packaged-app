@@ -27,15 +27,15 @@
             <Button
                     android:layout_width="match_parent"
                     android:layout_height="fill_parent"
-                    android:text="检查网络连接"
-                    android:id="@+id/checkserver" android:layout_gravity="center" android:layout_weight="1"
-                    android:textStyle="bold"/>
+                    android:text="尚未初始化"
+                    android:id="@+id/managerbutton" android:layout_weight="1" android:textStyle="bold"
+                    android:enabled="true" android:layout_gravity="center"/>
             <Button
                     android:layout_width="match_parent"
                     android:layout_height="fill_parent"
-                    android:text="打开浏览器"
-                    android:id="@+id/openbrowser" android:layout_weight="1" android:textStyle="bold"
-                    android:enabled="false"/>
+                    android:text="检查网络连接"
+                    android:id="@+id/checkserver" android:layout_gravity="center" android:layout_weight="1"
+                    android:textStyle="bold"/>
         </LinearLayout>
         <TextView
                 android:layout_width="wrap_content"
@@ -110,7 +110,7 @@
                     android:text="打开阳光提高班"
                     android:id="@+id/exercise" android:layout_gravity="center" android:textSize="32dp"
                     android:background="#2eb9ff" android:textColor="#ffffff" android:enabled="true"
-                    android:visibility="visible" android:paddingLeft="20dp" android:paddingRight="20dp"/>
+                    android:visibility="invisible" android:paddingLeft="20dp" android:paddingRight="20dp"/>
             <TextView
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"

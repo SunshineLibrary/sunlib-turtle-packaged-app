@@ -13,15 +13,13 @@ import java.io.File;
  */
 public class Configurations {
 
-    public static Context mainActivity ;
-
     public static final String TURTLE_SHARED_PREFERENCE = "Turtle";
     public static final String TURTLE_SHARED_PREFERENCE_INIT = "init";
     public static final String LAUNCHER_APP_FILE = "0.zip";
     public static final String storageBase = "/sdcard/turtle";
     public static final int SYNC_INTERVAL = 30 * 1000;
-            public static String serverHost = "http://192.168.3.100:9460";
-//    public static String serverHost = "http://192.168.3.26:3000";
+    public static String serverHost = "http://192.168.3.100:9460";
+    //    public static String serverHost = "http://192.168.3.26:3000";
     //    public static String serverHost = "http://192.168.3.100";
     //    public static String serverHost = "http://shuwu.sunshine-library.org";
     public static String LOCAL_SERVER_HOST = "http://192.168.3.100";

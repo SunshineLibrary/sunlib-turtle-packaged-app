@@ -6,16 +6,15 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.sunshinelibrary.turtle.dashboard.ServiceButton;
+import org.sunshinelibrary.turtle.init.InitService;
 import org.sunshinelibrary.turtle.models.WebApp;
 import org.sunshinelibrary.turtle.syncservice.AppSyncService;
-import org.sunshinelibrary.turtle.taskmanager.TaskManagerCallback;
 import org.sunshinelibrary.turtle.taskmanager.TaskWithResult;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.ConnectionState;
@@ -32,6 +31,7 @@ public class MainActivity extends Activity {
     Timer timer;
     TimerTask updateServiceStatus;
     ServiceButton syncButton;
+    //    ServiceButton managerButton;
     ServiceButton webButton;
     Button checkServerButton;
 //    TextView serverState;
@@ -41,25 +41,19 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        Configurations.mainActivity = this;
-
-        TurtleManagers.taskManager.register(new TaskManagerCallback() {
-            @Override
-            public void onTaskChange() {
-
-            }
-        });
-
         syncButton = ((ServiceButton) findViewById(R.id.syncbutton));
         syncButton.init(AppSyncService.class);
 
         webButton = ((ServiceButton) findViewById(R.id.webbutton));
         webButton.init(RestletWebService.class);
 
+//        managerButton = ((ServiceButton) findViewById(R.id.managerbutton));
+//        managerButton.init(RestletWebService.class);
+
         checkServerButton = ((Button) findViewById(R.id.checkserver));
 
         findViewById(R.id.checkserver).setOnClickListener(new CheckServer());
-        findViewById(R.id.openbrowser).setOnClickListener(new OpenBrowserListener());
+        findViewById(R.id.managerbutton).setOnClickListener(new ManagerListener());
         findViewById(R.id.shutdown).setOnClickListener(new ShutdownListener());
         findViewById(R.id.deleteUserData).setOnClickListener(new DeleteUserDataListener());
         findViewById(R.id.exercise).setOnClickListener(new OpenSunExercise());
@@ -134,13 +128,16 @@ public class MainActivity extends Activity {
         }
     }
 
-    public class OpenBrowserListener implements View.OnClickListener {
+    public class ManagerListener implements View.OnClickListener {
 
         @Override
         public void onClick(View view) {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://127.0.0.1:9460"));
-            browserIntent.setPackage("com.android.chrome");
-            startActivity(browserIntent);
+            Intent mServiceIntent = new Intent(MainActivity.this, InitService.class);
+            startService(mServiceIntent);
+
+//            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://127.0.0.1:9460"));
+//            browserIntent.setPackage("com.android.chrome");
+//            startActivity(browserIntent);
         }
     }
 
@@ -177,6 +174,9 @@ public class MainActivity extends Activity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    if (!TurtleManagers.isInit) {
+                        return;
+                    }
                     syncButton.refresh();
                     webButton.refresh();
                     ((TextView) findViewById(R.id.textView)).setText(

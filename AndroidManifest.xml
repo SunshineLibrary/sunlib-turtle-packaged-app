@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="org.sunshinelibrary.turtle"
-          android:versionCode="1"
+          android:versionCode="3"
           android:versionName="1.0">
     <uses-sdk android:minSdkVersion="15"/>
     <uses-permission android:name="android.permission.SET_TIME"/>
@@ -40,6 +40,12 @@
 
         <service android:name=".webservice.RestletWebService"/>
         <service android:name=".syncservice.AppSyncService"/>
+        <service android:name=".init.InitService"
+                 android:exported="true">
+            <intent-filter>
+                <action android:name="org.sunshinelibrary.turtle.service"/>
+            </intent-filter>
+        </service>
 
         <activity android:name=".reader.PdfActivity"
                   android:label="@string/app_name">
