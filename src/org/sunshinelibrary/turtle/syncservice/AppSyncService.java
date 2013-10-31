@@ -54,7 +54,7 @@ public class AppSyncService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (!running && Configurations.isOnline()) {
+        if (!running && Configurations.isOnline(this)) {
             new SyncTask().execute();
         }
         return super.onStartCommand(intent, flags, startId);
@@ -178,7 +178,7 @@ public class AppSyncService extends Service {
                         Logger.e("send userdata failed,wait for next sync");
                         break;
                     }
-                     TurtleManagers.userDataManager.getUserDataQueue().remove();
+                    TurtleManagers.userDataManager.getUserDataQueue().remove();
                 } catch (Exception e) {
                     e.printStackTrace();
                     break;

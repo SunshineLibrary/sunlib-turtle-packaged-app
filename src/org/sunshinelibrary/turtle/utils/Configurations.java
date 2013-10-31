@@ -28,7 +28,6 @@ public class Configurations {
     public static String accessToken;
     public static long lastSync;
     public static long lastSuccessSync;
-    private static Context context;
 
     public static boolean isInLocalNetwork() {
         return LOCAL_SERVER_HOST.equals(serverHost);
@@ -39,7 +38,6 @@ public class Configurations {
     }
 
     public static void init(Context context) {
-        Configurations.context = context;
         boolean success = false;
         Logger.i("init all folders," + storageBase);
         success = new File(getStorageBase()).mkdirs();
@@ -91,7 +89,7 @@ public class Configurations {
         return getStorageBase() + "/userdata";
     }
 
-    public static boolean isOnline() {
+    public static boolean isOnline(Context context) {
         ConnectivityManager cm =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
