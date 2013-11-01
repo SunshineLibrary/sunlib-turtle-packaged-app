@@ -139,7 +139,8 @@
                 android:layout_height="40dp"
                 android:text="强制关闭"
                 android:id="@+id/shutdown" android:layout_gravity="center" android:textSize="24dp"
-                android:background="#8d000a" android:textColor="#ffffff"/>
+                android:background="#8d000a" android:textColor="#ffffff" android:focusable="false"
+                android:visibility="invisible"/>
     </LinearLayout>
 </RelativeLayout>
 
