@@ -116,7 +116,7 @@ public class TurtleInfoUtils {
         } catch (PackageManager.NameNotFoundException e) {
             Toast.makeText(context, "无法获得用户AccessToken，将使用临时AccessToken", Toast.LENGTH_LONG).show();
             Logger.e("cannot get access token, use test instead");
-            access_token = "test";
+            access_token = Configurations.DEFAULT_ACCESS_TOKEN;
         }
         return access_token;
     }
