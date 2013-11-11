@@ -1,6 +1,7 @@
 package org.sunshinelibrary.turtle.utils;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
@@ -16,9 +17,9 @@ public class Configurations {
     public static final String TURTLE_SHARED_PREFERENCE = "Turtle";
     public static final String TURTLE_SHARED_PREFERENCE_INIT = "init";
     public static final String LAUNCHER_APP_FILE = "0.zip";
-    public static final String storageBase = "/sdcard/turtle";
+    public static final String storageBase = "/sdcard/.turtle";
     public static final int SYNC_INTERVAL = 30 * 1000;
-    public static final String DEFAULT_ACCESS_TOKEN = "test123321";
+    public static final String DEFAULT_ACCESS_TOKEN = "test";
     public static String serverHost = "http://192.168.3.100:9460";
     public static String userDataServerHost = "http://192.168.3.100";
     //    public static String serverHost = "http://192.168.3.26:3000";
@@ -29,8 +30,9 @@ public class Configurations {
     public static String accessToken;
     public static long lastSync;
     public static long lastSuccessSync;
+    public static int versionCode;
 
-    public static void init(Context context) {
+    public static void init(Context context) throws PackageManager.NameNotFoundException {
         boolean success = false;
         Logger.i("init all folders," + storageBase);
         success = new File(getStorageBase()).mkdirs();
@@ -42,6 +44,7 @@ public class Configurations {
         success = new File(getUserDataBase()).mkdirs();
         Logger.i("create userdata base," + success);
         accessToken = TurtleInfoUtils.getAccessToken(context);
+        versionCode = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionCode;
     }
 
     public static String getAccessToken() {
@@ -54,7 +57,6 @@ public class Configurations {
 
     public static String getSunlibAPI(SunAPI api) {
         if (SunAPI.APPSJSON.equals(api)) {
-//            return serverHost + "/apps.json";
             return serverHost + "/apps";
         } else if (SunAPI.USERDATA.equals(api)) {
             return userDataServerHost;

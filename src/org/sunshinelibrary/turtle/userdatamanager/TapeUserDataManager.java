@@ -41,15 +41,11 @@ public class TapeUserDataManager implements UserDataManager {
         userDataFolder.mkdirs();
         if (!userDataFolder.canWrite()) {
             throw new IOException("userdata folder cannot write");
-        }
+        }`
     }
 
     public static String getUserDataId(String key) {
         return (TextUtils.isEmpty(key)) ? null : new Base32().encodeAsString(key.getBytes());
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
     }
 
     @Override

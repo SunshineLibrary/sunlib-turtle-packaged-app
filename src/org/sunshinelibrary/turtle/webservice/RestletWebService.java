@@ -192,79 +192,6 @@ public class RestletWebService extends Service implements WebService {
         return null;
     }
 
-    public static class DebuggerRestlet extends Restlet {
-
-        @Override
-        public void handle(Request request, Response response) {
-            DebugInfo ret = new DebugInfo();
-            String requestPath = request.getResourceRef().getPath();
-            if ("/debug/running_apps".equals(requestPath)) {
-                ret.success = true;
-                ret.content = getRunningApps();
-            } else if ("/debug/userdata".equals(requestPath)) {
-                ret.success = true;
-                ret.content = getAllUserData();
-            } else if ("/debug/access_token".equals(requestPath)) {
-                ret.success = true;
-                ret.content = getAccessToken();
-            } else if ("/debug/install_app".equals(requestPath)) {
-                try {
-                    Form queryForm = request.getResourceRef().getQueryAsForm();
-                    String downloadUrl = queryForm.getFirst("download_url").getValue();
-                    URL url = new URL(downloadUrl);
-                    WebApp app = installApp(url);
-                    ret.success = true;
-                    ret.content = new Gson().toJson(app);
-                } catch (Exception e) {
-                    ret.success = false;
-                }
-            } else if ("/debug/uninstall_app".equals(requestPath)) {
-                Form queryForm = request.getResourceRef().getQueryAsForm();
-                String appId = queryForm.getFirst("id").getValue();
-                try {
-                    TurtleManagers.appManager.uninstallApp(appId);
-                    ret.success = true;
-                } catch (WebAppException e) {
-                    e.printStackTrace();
-                }
-            }
-            response.setEntity(new StringRepresentation(new Gson().toJson(ret)));
-        }
-
-        public String getRunningApps() {
-            return new Gson().toJson(TurtleManagers.appManager.getAllApps());
-        }
-
-        public String getAllUserData() {
-            return new Gson().toJson(TurtleManagers.userDataManager.getAll());
-        }
-
-        public String getAccessToken() {
-            return Configurations.getAccessToken();
-        }
-
-        public WebApp installApp(URL url) {
-            WebApp ret = null;
-            File tmpFile = null;
-            try {
-                tmpFile = File.createTempFile("turtl_debug_", ".tmp");
-                FileUtils.copyURLToFile(url, tmpFile);
-                ret = TurtleManagers.appManager.installApp(tmpFile);
-            } catch (Exception e) {
-                e.printStackTrace();
-                if (tmpFile != null) {
-                    FileUtils.deleteQuietly(tmpFile);
-                }
-            }
-            return ret;
-        }
-
-        public static class DebugInfo {
-            boolean success;
-            String content;
-        }
-    }
-
     public static class FileApplication extends Application {
         public String rootUrl;
 
@@ -314,6 +241,87 @@ public class RestletWebService extends Service implements WebService {
         public Restlet createInboundRoot() {
             router.setContext(getContext());
             return router;
+        }
+    }
+
+    public class DebuggerRestlet extends Restlet {
+
+        @Override
+        public void handle(Request request, Response response) {
+            DebugInfo ret = new DebugInfo();
+            String requestPath = request.getResourceRef().getPath();
+            if ("/debug/running_apps".equals(requestPath)) {
+                ret.success = true;
+                ret.content = getRunningApps();
+            } else if ("/debug/userdata".equals(requestPath)) {
+                ret.success = true;
+                ret.content = getAllUserData();
+            } else if ("/debug/access_token".equals(requestPath)) {
+                ret.success = true;
+                ret.content = getAccessToken();
+            } else if ("/debug/install_app".equals(requestPath)) {
+                try {
+                    Form queryForm = request.getResourceRef().getQueryAsForm();
+                    String downloadUrl = queryForm.getFirst("download_url").getValue();
+                    URL url = new URL(downloadUrl);
+                    WebApp app = installApp(url);
+                    ret.success = true;
+                    ret.content = new Gson().toJson(app);
+                } catch (Exception e) {
+                    ret.success = false;
+                }
+            } else if ("/debug/uninstall_app".equals(requestPath)) {
+                Form queryForm = request.getResourceRef().getQueryAsForm();
+                String appId = queryForm.getFirst("id").getValue();
+                try {
+                    TurtleManagers.appManager.uninstallApp(appId);
+                    ret.success = true;
+                } catch (WebAppException e) {
+                    e.printStackTrace();
+                }
+            } else if ("/debug/shutdown".equals(requestPath)) {
+                ret.success = true;
+                ret.content = "not implemented";
+            } else if ("/debug/api".equals(requestPath)) {
+                Form queryForm = request.getResourceRef().getQueryAsForm();
+                String api = queryForm.getFirst("api").getValue();
+                String accessToken = Configurations.getAccessToken();
+
+            }
+            response.setEntity(new StringRepresentation(new Gson().toJson(ret)));
+        }
+
+        public String getRunningApps() {
+            return new Gson().toJson(TurtleManagers.appManager.getAllApps());
+        }
+
+        public String getAllUserData() {
+            return new Gson().toJson(TurtleManagers.userDataManager.getAll());
+        }
+
+        public String getAccessToken() {
+            return Configurations.getAccessToken();
+        }
+
+        public WebApp installApp(URL url) {
+            WebApp ret = null;
+            File tmpFile = null;
+            try {
+                tmpFile = File.createTempFile("turtl_debug_", ".tmp");
+                FileUtils.copyURLToFile(url, tmpFile);
+                ret = TurtleManagers.appManager.installApp(tmpFile);
+            } catch (Exception e) {
+                e.printStackTrace();
+                if (tmpFile != null) {
+                    FileUtils.deleteQuietly(tmpFile);
+                }
+            }
+            return ret;
+        }
+
+        public class DebugInfo {
+            boolean success;
+            String content;
         }
     }
 

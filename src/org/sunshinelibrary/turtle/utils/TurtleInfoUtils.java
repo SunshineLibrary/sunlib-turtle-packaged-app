@@ -1,11 +1,10 @@
 package org.sunshinelibrary.turtle.utils;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.widget.Toast;
 import org.apache.http.conn.util.InetAddressUtils;
-import org.restlet.Context;
-import org.sunshinelibrary.turtle.models.TurtleInfo;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
@@ -23,25 +22,6 @@ import java.util.List;
  * Time: 3:34 PM
  */
 public class TurtleInfoUtils {
-
-    public static TurtleInfo getTurtleInfo(Context context) {
-        TurtleInfo ret = null;
-        try {
-            TurtleInfo info = new TurtleInfo();
-            info.localHost = getIPAddress(true);
-            info.apiHost = Configurations.serverHost;
-            info.userInfo = getUserInfo(context);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return ret;
-    }
-
-    public static TurtleInfo.UserInfo getUserInfo(Context context) {
-//        Context mContext = getApplicationContext().createPackageContext("org.sunshinelibrary.login", Context.MODE_MULTI_PROCESS);
-//        SharedPreferences preferences = mContext.getSharedPreferences("LOGIN",Context.MODE_MULTI_PROCESS);
-        return null;
-    }
 
     /**
      * Get IP address from first non-localhost interface
@@ -107,7 +87,7 @@ public class TurtleInfoUtils {
         return ret;
     }
 
-    public static String getAccessToken(android.content.Context context) {
+    public static String getAccessToken(Context context) {
         String access_token = null;
         try {
             android.content.Context mContext = context.createPackageContext("org.sunshinelibrary.login", android.content.Context.MODE_MULTI_PROCESS);

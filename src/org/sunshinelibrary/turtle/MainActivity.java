@@ -1,34 +1,17 @@
 package org.sunshinelibrary.turtle;
 
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
-import org.sunshinelibrary.turtle.dashboard.ServiceButton;
-import org.sunshinelibrary.turtle.init.InitService;
-import org.sunshinelibrary.turtle.models.WebApp;
-import org.sunshinelibrary.turtle.syncservice.AppSyncService;
-import org.sunshinelibrary.turtle.taskmanager.TaskWithResult;
-import org.sunshinelibrary.turtle.utils.Configurations;
-import org.sunshinelibrary.turtle.utils.ConnectionState;
-import org.sunshinelibrary.turtle.utils.DateFormater;
-import org.sunshinelibrary.turtle.utils.TurtleInfoUtils;
-import org.sunshinelibrary.turtle.webservice.RestletWebService;
-
-import java.util.*;
 
 public class MainActivity extends Activity {
     /**
      * Called when the activity is first created.
      */
-    Timer timer;
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+    }
+/*    Timer timer;
     TimerTask updateServiceStatus;
     ServiceButton syncButton;
     //    ServiceButton managerButton;
@@ -210,4 +193,5 @@ public class MainActivity extends Activity {
             });
         }
     }
+    */
 }

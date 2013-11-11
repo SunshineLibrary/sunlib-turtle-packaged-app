@@ -26,7 +26,6 @@ public class TurtleManagers {
     public static boolean isInit = false;
 
     public static void init(Context context) throws Exception {
-        Logger.i("this is version 1");
         SharedPreferences settings = context.getSharedPreferences(Configurations.TURTLE_SHARED_PREFERENCE, 0);
         if (!settings.getBoolean(Configurations.TURTLE_SHARED_PREFERENCE_INIT, false)) {
             // Delete all turtle folder exists
