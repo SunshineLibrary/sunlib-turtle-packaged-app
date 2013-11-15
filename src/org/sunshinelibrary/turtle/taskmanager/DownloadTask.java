@@ -97,6 +97,8 @@ public class DownloadTask extends WebAppTask {
     private void downloadFileFromUrl(URL url, File dstFile) throws IOException {
         int count;
         URLConnection conection = url.openConnection();
+        conection.setConnectTimeout(5000);
+        conection.setReadTimeout(3000);
         conection.connect();
         // getting file length
         int lenghtOfFile = conection.getContentLength();

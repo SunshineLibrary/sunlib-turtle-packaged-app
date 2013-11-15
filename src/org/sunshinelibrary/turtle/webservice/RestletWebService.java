@@ -2,6 +2,8 @@ package org.sunshinelibrary.turtle.webservice;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
 import android.text.TextUtils;
@@ -19,8 +21,10 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
 import org.restlet.routing.Template;
+import org.sunshinelibrary.turtle.R;
 import org.sunshinelibrary.turtle.TurtleManagers;
 import org.sunshinelibrary.turtle.appmanager.WebAppException;
+import org.sunshinelibrary.turtle.models.NativeApp;
 import org.sunshinelibrary.turtle.models.WebApp;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Logger;
@@ -283,10 +287,26 @@ public class RestletWebService extends Service implements WebService {
                 ret.success = true;
                 ret.content = "not implemented";
             } else if ("/debug/api".equals(requestPath)) {
-                Form queryForm = request.getResourceRef().getQueryAsForm();
-                String api = queryForm.getFirst("api").getValue();
-                String accessToken = Configurations.getAccessToken();
-
+//                Form queryForm = request.getResourceRef().getQueryAsForm();
+//                String api = queryForm.getFirst("api").getValue();
+//                String accessToken = Configurations.getAccessToken();
+            } else if ("/debug/alarm".equals(requestPath)) {
+                final MediaPlayer mp = MediaPlayer.create(RestletWebService.this, R.raw.findme);
+                mp.start();
+                mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mediaPlayer) {
+                        mp.release();
+                    }
+                });
+            } else if ("/debug/native_apps".equals(requestPath)) {
+                List<NativeApp> apps = new ArrayList<NativeApp>();
+                List<PackageInfo> packageInfos = getPackageManager().getInstalledPackages(0);
+                for (PackageInfo p : packageInfos) {
+                    apps.add(new NativeApp(p.packageName, p.versionCode));
+                }
+                ret.success = true;
+                ret.content = new Gson().toJson(apps);
             }
             response.setEntity(new StringRepresentation(new Gson().toJson(ret)));
         }

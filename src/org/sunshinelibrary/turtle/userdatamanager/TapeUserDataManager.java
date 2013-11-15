@@ -41,7 +41,7 @@ public class TapeUserDataManager implements UserDataManager {
         userDataFolder.mkdirs();
         if (!userDataFolder.canWrite()) {
             throw new IOException("userdata folder cannot write");
-        }`
+        }
     }
 
     public static String getUserDataId(String key) {
