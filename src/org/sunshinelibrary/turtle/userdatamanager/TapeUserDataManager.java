@@ -3,12 +3,12 @@ package org.sunshinelibrary.turtle.userdatamanager;
 import android.content.Context;
 import android.text.TextUtils;
 import com.google.gson.Gson;
-import com.squareup.tape.FileObjectQueue;
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.io.FileUtils;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.GsonConverter;
 import org.sunshinelibrary.turtle.utils.Logger;
+import org.sunshinelibrary.turtle.utils.TolerantQueue;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,10 +31,10 @@ public class TapeUserDataManager implements UserDataManager {
         if (accessToken == null) {
             throw new IOException("access token is null");
         }
-        FileObjectQueue.Converter<UserDataTask> converter
+        TolerantQueue.Converter<UserDataTask> converter
                 = new GsonConverter<UserDataTask>(new Gson(), UserDataTask.class);
         userDataQueue = new UserDataTaskQueue(
-                new FileObjectQueue<UserDataTask>(
+                new TolerantQueue<UserDataTask>(
                         new File(Configurations.getUserDataQueueFile()), converter)
         );
         userDataFolder = new File(Configurations.getUserDataBase());

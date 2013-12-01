@@ -56,6 +56,7 @@ public class AppSyncService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (!running && Configurations.isOnline(this)) {
             new SyncTask().execute();
+            running = true;
         }
         return super.onStartCommand(intent, flags, startId);
     }
@@ -96,7 +97,6 @@ public class AppSyncService extends Service {
 
         @Override
         protected Integer doInBackground(Void... voids) {
-            running = true;
             int successTask = 0;
             Logger.i("SyncTask start");
             // fetch apps.json
