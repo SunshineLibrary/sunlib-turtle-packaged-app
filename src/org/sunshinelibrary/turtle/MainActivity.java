@@ -54,7 +54,7 @@ public class MainActivity extends Activity {
         checkServerButton = ((Button) findViewById(R.id.checkserver));
 
         findViewById(R.id.checkserver).setOnClickListener(new CheckServer());
-        findViewById(R.id.managerbutton).setOnClickListener(new ManagerListener());
+        findViewById(R.id.managerbutton).setOnClickListener(new ManagerListener());  //TODO:???-->initService
         findViewById(R.id.shutdown).setOnClickListener(new ShutdownListener());
         findViewById(R.id.deleteUserData).setOnClickListener(new DeleteUserDataListener());
         findViewById(R.id.exercise).setOnClickListener(new OpenSunExercise());
@@ -84,7 +84,7 @@ public class MainActivity extends Activity {
     public class DeleteUserDataListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            TurtleManagers.userDataManager.deleteAll();
+            TurtleManagers.userDataManager.deleteAll("");
         }
     }
 

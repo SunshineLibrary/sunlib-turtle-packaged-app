@@ -142,6 +142,7 @@ public class WebAppManager extends AppManager {
     public void refresh() {
         String appFolderPath = Configurations.getAppBase();
         File[] appFolders = new File(appFolderPath).listFiles();
+        Logger.i("appFolders.length="+appFolders.length);
         if (appFolders == null) {
             Logger.i("no app in app folder," + appFolderPath);
             return;

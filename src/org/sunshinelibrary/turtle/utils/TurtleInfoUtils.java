@@ -89,16 +89,31 @@ public class TurtleInfoUtils {
 
     public static String getAccessToken(Context context) {
         String access_token = null;
-        try {
-            android.content.Context mContext = context.createPackageContext("org.sunshinelibrary.login", android.content.Context.MODE_MULTI_PROCESS);
-            SharedPreferences preferences = mContext.getSharedPreferences("LOGIN", android.content.Context.MODE_MULTI_PROCESS);
-            access_token = preferences.getString("ACCESS_TOKEN", "");
+/*        try {
+            //TODO:注意这里之前是取的原来login app的Context，现在是当前的app的Context，所以不用再做特殊的处理. and the Mode is must private
+            //android.content.Context mContext = context.createPackageContext("org.sunshinelibrary.login", android.content.Context.MODE_MULTI_PROCESS);
+
         } catch (PackageManager.NameNotFoundException e) {
             Toast.makeText(context, "无法获得用户AccessToken，将使用临时AccessToken", Toast.LENGTH_LONG).show();
             Logger.e("cannot get access token, use test instead");
             access_token = Configurations.DEFAULT_ACCESS_TOKEN;
-        }
+        }  */
+        SharedPreferences preferences = context.getSharedPreferences("LOGIN", Context.MODE_PRIVATE);
+        access_token = preferences.getString("access_token", "");
         return access_token;
+    }
+
+    public static void writeAccessToken(Context context, String access_token) {
+        SharedPreferences preferences = context.getSharedPreferences("LOGIN", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("access_token", access_token);
+        editor.commit();
+    }
+
+    public static void destroyInfo(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences("LOGIN", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.remove("access_token").commit();
     }
 
 }

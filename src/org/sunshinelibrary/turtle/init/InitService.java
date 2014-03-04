@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
+import android.util.Log;
 import android.widget.Toast;
 import org.apache.commons.io.FileUtils;
 import org.sunshinelibrary.turtle.TurtleManagers;
@@ -38,11 +39,15 @@ public class InitService extends IntentService {
             return;
         }
         try {
-            TurtleManagers.init(this);
-            TurtleManagers.appManager.refresh();
-            if (TurtleManagers.appManager.getApp("0") == null) {
-                initLauncherApp();
+            TurtleManagers.init(this);//创建基本的.turtle/等目录
+            //TODO:auto login 放在这里去登陆会和需要的生命周期是一致的么？也就是说会不会存在“当需要登陆服务的时候但是不会走这个方法”的情况
+            TurtleManagers.loginTask();
+
+            TurtleManagers.appManager.refresh();//mount完毕所有apps下面的folder
+            if (TurtleManagers.appManager.getApp("0") == null) {//检测是否有0.zip，如果木有则需要弄一个，必须要有！应该是那个dashboard,显示所有是web而不是chapter，并且launchable的
+                //initLauncherApp();
             }
+            Log.i("Cong", "apps.length="+TurtleManagers.appManager.getAppsMap().size());
         } catch (Exception e) {
             Logger.e("turtle initialized incorrect," + e.getMessage());
             Toast.makeText(this, "turtle initialized incorrect", Toast.LENGTH_LONG).show();
@@ -50,7 +55,7 @@ public class InitService extends IntentService {
         }
 
         try {
-            FileUtils.writeStringToFile(
+            FileUtils.writeStringToFile(//向heart文件写入window全局变量isTurtleOn，供后面exercise中检测此变量来查看turtle是否启动
                     new File(Configurations.getAppBase(), "heart"),
                     "window.isTurtleOnline = true; console.log('turtle is on');");
         } catch (IOException e) {
@@ -58,6 +63,7 @@ public class InitService extends IntentService {
             throw new RuntimeException(e);
         }
 
+        //apps加载完毕，基本folder就绪，0.zip完毕，isTurtleOn标志位写入完毕. 下面就启动两个服务
         Intent serverIntent = new Intent(this, RestletWebService.class);
         startService(serverIntent);
         Intent syncIntent = new Intent(this, AppSyncService.class);
@@ -65,9 +71,10 @@ public class InitService extends IntentService {
 
         startIntervalAlarm();
         stopSelf();
+        //初始化服务执行完毕，结束自己
     }
 
-    private void initLauncherApp() throws IOException, WebAppException {
+    private void initLauncherApp() throws IOException, WebAppException {//如果没有搞定0.zip那么上面就会导致tyr..catch中抛出Exception
         Logger.i("launcher not exits, install preinstall one");
         File tmpFile = File.createTempFile("turtle_", "tmp");
         FileUtils.copyInputStreamToFile(getAssets().open(Configurations.LAUNCHER_APP_FILE), tmpFile);

@@ -20,8 +20,13 @@ public class Configurations {
     public static final String storageBase = "/sdcard/.turtle";
     public static final int SYNC_INTERVAL = 30 * 1000;
     public static final String DEFAULT_ACCESS_TOKEN = "test";
-    public static String serverHost = "http://192.168.3.100:9460";
-    public static String userDataServerHost = "http://192.168.3.100";
+
+    public static String serverHost = "http://192.168.3.52:3000";  //http://192.168.3.100:9460
+    public static String userDataServerHost = "http://192.168.3.52:3000";   //http://192.168.3.100
+    public static String upstreamServer = "http://192.168.3.52:3000";//本机的地址，测试用~
+
+    public static String defaultPackage = "exercise";
+
     //    public static String serverHost = "http://192.168.3.26:3000";
     //    public static String serverHost = "http://192.168.3.100:9460";
     //    public static String serverHost = "http://shuwu.sunshine-library.org";

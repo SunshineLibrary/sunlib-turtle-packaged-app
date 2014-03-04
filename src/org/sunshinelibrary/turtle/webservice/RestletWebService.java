@@ -7,13 +7,27 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
 import android.text.TextUtils;
+import android.util.Log;
 import com.android.internal.util.Predicate;
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.BasicHttpContext;
 import org.json.JSONObject;
 import org.restlet.*;
 import org.restlet.data.Form;
 import org.restlet.data.Method;
+import org.restlet.data.Parameter;
 import org.restlet.data.Protocol;
 import org.restlet.data.Status;
 import org.restlet.representation.InputRepresentation;
@@ -22,18 +36,23 @@ import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
 import org.restlet.routing.Template;
 import org.sunshinelibrary.turtle.R;
+import org.sunshinelibrary.turtle.TurtleApplication;
 import org.sunshinelibrary.turtle.TurtleManagers;
+import org.sunshinelibrary.turtle.User;
 import org.sunshinelibrary.turtle.appmanager.WebAppException;
 import org.sunshinelibrary.turtle.models.NativeApp;
 import org.sunshinelibrary.turtle.models.WebApp;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Logger;
-
+import org.sunshinelibrary.turtle.utils.TurtleInfoUtils;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.*;
-
 
 /**
  * User: fxp
@@ -41,7 +60,6 @@ import java.util.*;
  * Time: 8:45 PM
  */
 public class RestletWebService extends Service implements WebService {
-
     public static <T> Collection<T> filter(Collection<T> target, Predicate<T> predicate) {
         Collection<T> result = new ArrayList<T>();
         for (T element : target) {
@@ -82,42 +100,129 @@ public class RestletWebService extends Service implements WebService {
         router.setDefaultMatchingMode(Template.MODE_STARTS_WITH);
         router.setRoutingMode(Router.MODE_FIRST_MATCH);
 
-        // create API for user_data and apps
-        router.attach("/exercise/v1/user_data/{path}", new Restlet() {
+        router.attachDefault(new Restlet() {
             @Override
             public void handle(Request request, Response response) {
+
                 String requestPath = request.getResourceRef().getPath();
-                String ret = "{}";
-                String content = null;
-
-                if (Method.GET.equals(request.getMethod())) {
-                    Logger.i("GET user data," + requestPath);
-                    ret = TurtleManagers.userDataManager.getData(requestPath);
-                } else if (Method.POST.equals(request.getMethod())) {
-                    Logger.i("POST user data," + requestPath);
-                    try {
-                        content = request.getEntity().getText();
-                        TurtleManagers.userDataManager.sendData(requestPath, content);
-                        ret = content;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Logger.e("get body from request failed," + requestPath);
+                if ("/".equals(requestPath)) {
+                    if(TurtleManagers.userManager.user != null) {
+                        response.redirectTemporary("/dispatch");
+                    } else {
+                        response.redirectTemporary("/app/login");
                     }
+                    return;
                 }
-
-                response.setEntity(new StringRepresentation(ret));
+//                response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+//                response.setEntity(new StringRepresentation("<a href='/'>刷新</a>"));
+                try {
+                    response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+                    response.setEntity(new InputRepresentation(getAssets().open("404.html")));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
-        router.attach("/reader", new ReaderRestlet());
 
-        router.attach("/debug", new DebuggerRestlet());
+        router.attach("/login", new Restlet() {
+            @Override
+            public void handle(Request request, Response response) {
+                super.handle(request, response);
+                String newRequestUrl = Configurations.upstreamServer + request.getResourceRef().getPath();
+
+                List<NameValuePair> list = new ArrayList<NameValuePair>();
+                Form form = new Form(request.getEntity());
+                Parameter parameter = form.get(0);
+                User user = new Gson().fromJson(parameter.getName(), User.class);
+                list.add(new BasicNameValuePair("username", user.username));
+                list.add(new BasicNameValuePair("password", user.password));
+
+                HttpClient client = TurtleManagers.cookieManager.client;
+                BasicHttpContext context = TurtleManagers.cookieManager.httpContext;
+                BasicCookieStore cookieStore = TurtleManagers.cookieManager.cookieStore;
+                context.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+                HttpPost post = new HttpPost(newRequestUrl);
+
+                String httpResonpseResult = "";
+                try {
+                    post.setEntity(new UrlEncodedFormEntity(list));
+                    HttpResponse httpResponse = client.execute(post, context);
+
+                    if(httpResponse.getStatusLine().getStatusCode() == 200) {
+                        HttpEntity httpEntity = httpResponse.getEntity();
+                        InputStream inputStream = httpEntity.getContent();
+                        httpResonpseResult  = convertStreamToString(inputStream);
+                        User currentUser = new Gson().fromJson(httpResonpseResult, User.class);
+                        TurtleManagers.userManager.user = currentUser;
+
+                        List<Cookie> cookies = cookieStore.getCookies();
+                        if(!cookies.isEmpty()) {
+                            for(Cookie cookie : cookies) {
+                                String cookieString = cookie.getName() + " : " + cookie.getValue();
+                                if("connect.sid".equals(cookie.getName())) {
+                                    TurtleInfoUtils.writeAccessToken(TurtleApplication.getAppContext(), cookie.getValue());
+                                }
+                            }
+                        }
+
+                        if(TurtleManagers.userManager.user != null) {
+                            File userFolder = new File(Configurations.getUserDataBase(), TurtleManagers.userManager.user.username);
+                            if(!userFolder.exists()) {
+                                userFolder.mkdirs();
+                            }
+                        }
+                    }else{
+                        Log.i("Turtle", "Not 200");
+                    }
+                } catch (UnsupportedEncodingException e) {
+                    Log.i("Turtle", "UnsupportedEncodingException");
+                    e.printStackTrace();
+                } catch (ClientProtocolException e) {
+                    Log.i("Turtle", "ClientProtocolException");
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    Log.i("Turtle", "IOException");
+                    e.printStackTrace();
+                }
+                response.setEntity(new StringRepresentation(httpResonpseResult));
+            }
+        });
+
+        router.attach("/logout", new Restlet() {
+            @Override
+            public void handle(Request request, Response response) {
+                super.handle(request, response);
+                TurtleManagers.userManager.user = null;
+                TurtleInfoUtils.destroyInfo(TurtleApplication.getAppContext());
+                response.redirectTemporary("/");
+            }
+        });
+
+        router.attach("/dispatch", new Restlet() {
+            @Override
+            public void handle(Request request, Response response) {
+                super.handle(request, response);
+                User user = TurtleManagers.userManager.user;
+                if(user != null) {
+                    if(!"teacher".equals(user.usergroup)) {
+                        if(user.isProfileFullfill()) {
+                            response.redirectTemporary("/app/navigator");
+                        } else {
+                            response.redirectTemporary("/app/navigator");
+                        }
+                    } else {
+                        response.redirectTemporary("/app/navigator");
+                    }
+                } else {
+                    response.redirectTemporary("/");
+                }
+            }
+        });
 
         router.attach("/apps", new
-
                 Restlet() {
                     @Override
                     public void handle(Request request, Response response) {
-//                        TurtleManagers.appManager.refresh();
                         String ret = null;
                         final Form queryForm = request.getResourceRef().getQueryAsForm();
                         final Set<String> filterKeys = queryForm.getNames();
@@ -127,7 +232,6 @@ public class RestletWebService extends Service implements WebService {
                             filterMap.put(key, Arrays.asList(conditions));
                         }
                         Collection<WebApp> apps = TurtleManagers.appManager.getAllApps();
-
                         Predicate<WebApp> isFiltered = new Predicate<WebApp>() {
                             public boolean apply(WebApp app) {
                                 boolean ret = true;
@@ -154,27 +258,48 @@ public class RestletWebService extends Service implements WebService {
                     }
                 });
 
-        router.attachDefault(new Restlet() {
+        router.attach("/me", new Restlet() {
             @Override
             public void handle(Request request, Response response) {
-                String requestPath = request.getResourceRef().getPath();
-                if ("/".equals(requestPath)) {
-                    response.redirectSeeOther("/app/0/index.html");
-                    return;
-                }
-//                response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-//                response.setEntity(new StringRepresentation("<a href='/'>刷新</a>"));
-                try {
-                    response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-                    response.setEntity(new InputRepresentation(getAssets().open("404.html")));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                super.handle(request, response);
+                response.setEntity(new StringRepresentation(TurtleManagers.userManager.user.toString()));
             }
         });
 
+        router.attach("/userdata/me/info", new Restlet() {
+            @Override
+            public void handle(Request request, Response response) {
+                super.handle(request, response);
+                String userInfo = "";
+                if(Method.GET.equals(request.getMethod())) {
+                    userInfo = TurtleManagers.userDataManager.getUserInfo("me", "info");
+                } else if(Method.POST.equals(request.getMethod())) {
+                    try {
+                        String content = request.getEntity().getText();
+                        TurtleManagers.userDataManager.sendData("me", "info", content);
+                        userInfo = content;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                response.setEntity(new StringRepresentation(userInfo));
+            }
+        });
+
+        router.attach("/userdata/{appId}/{entityId}", new Restlet() {
+            @Override
+            public void handle(Request request, Response response) {
+                super.handle(request, response);
+                response.setEntity(new StringRepresentation(new User().toString()));
+            }
+        });
+        router.attach("/reader", new ReaderRestlet());
+
+        router.attach("/debug", new DebuggerRestlet());
+
+
         Application application = new SimpleApplication(router);
-        // serve all app folder
+        // serve all app folder         //TODO:Host the static file, ex: lesson.json
         component.getDefaultHost().attach("/app/", new FileApplication("file://" + Configurations.getAppBase()));
         component.getDefaultHost().attach("", application);
         try {
@@ -184,6 +309,28 @@ public class RestletWebService extends Service implements WebService {
             e.printStackTrace();
         }
 
+    }
+
+    private static String convertStreamToString(InputStream is) {
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+
+        String line = null;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return sb.toString();
     }
 
     @Override
@@ -316,7 +463,7 @@ public class RestletWebService extends Service implements WebService {
         }
 
         public String getAllUserData() {
-            return new Gson().toJson(TurtleManagers.userDataManager.getAll());
+            return new Gson().toJson(TurtleManagers.userDataManager.getAll(""));
         }
 
         public String getAccessToken() {
