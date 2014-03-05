@@ -7,8 +7,10 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
 import android.text.TextUtils;
+import android.util.Log;
 import com.android.internal.util.Predicate;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.restlet.*;
@@ -18,6 +20,8 @@ import org.restlet.data.Protocol;
 import org.restlet.data.Status;
 import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.StringRepresentation;
+import org.restlet.ext.json.JsonRepresentation;
+import org.restlet.representation.Representation;
 import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
 import org.restlet.routing.Template;
@@ -108,6 +112,8 @@ public class RestletWebService extends Service implements WebService {
                 response.setEntity(new StringRepresentation(ret));
             }
         });
+
+
         router.attach("/reader", new ReaderRestlet());
 
         router.attach("/debug", new DebuggerRestlet());
@@ -153,6 +159,34 @@ public class RestletWebService extends Service implements WebService {
                         response.setEntity(new StringRepresentation(result.toString()));
                     }
                 });
+
+        ////////////////////////////////////////
+
+        router.attach("/tracks", new Restlet() {
+            @Override
+            public void handle(Request request, Response response) {
+                final String TAG = "tracks";
+                String ret = null;
+                if (Method.POST.equals(request.getMethod())) {
+                    try {
+                        Representation representation = request.getEntity();
+                        JsonRepresentation jsonRepresentation = new JsonRepresentation(representation);
+                        JSONObject jObject = jsonRepresentation.getJsonObject();
+                        Log.i(TAG,"type:"+jsonRepresentation.toString()+"====>"+jObject.toString());
+
+                        //TODO: add task to post data to t.sunshine & fix the issue that will cause post several times.
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Log.e(TAG,"get body from request failed");
+                    }
+                }else{
+                    ret = "api use error";
+                    Log.e(TAG,"error use tracks api, should be http post");
+                }
+                response.setEntity(new StringRepresentation(ret));
+            }
+        });
+        /////////////////////////////////////////
 
         router.attachDefault(new Restlet() {
             @Override
