@@ -1,11 +1,5 @@
 .idea/
-<<<<<<< HEAD
 gen
 out
 *.iml
-=======
-out/
-turtle-android.iml
-gen/
 *~
->>>>>>> upstream/master
