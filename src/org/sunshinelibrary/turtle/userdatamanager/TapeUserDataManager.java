@@ -2,13 +2,19 @@ package org.sunshinelibrary.turtle.userdatamanager;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
+import android.widget.Toast;
+
 import com.google.gson.Gson;
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.io.FileUtils;
+import org.sunshinelibrary.turtle.TurtleApplication;
+import org.sunshinelibrary.turtle.TurtleManagers;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.GsonConverter;
 import org.sunshinelibrary.turtle.utils.Logger;
 import org.sunshinelibrary.turtle.utils.TolerantQueue;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,28 +29,33 @@ import java.util.Map;
 public class TapeUserDataManager implements UserDataManager {
 
     public UserDataTaskQueue userDataQueue;
-    private File userDataFolder = null;
+    private File userDataBaseFolder = null;
     private String accessToken = null;
 
+    //TODO:the constructor function need to change
+
     public TapeUserDataManager(Context context) throws IOException {
+//through the accessToken to get the username, then make the username folder to host all the user data belong to the user
         accessToken = Configurations.getAccessToken();
+        //TODO:through the accessToken get the username, then create the username folder
         if (accessToken == null) {
             throw new IOException("access token is null");
         }
+
         TolerantQueue.Converter<UserDataTask> converter
                 = new GsonConverter<UserDataTask>(new Gson(), UserDataTask.class);
         userDataQueue = new UserDataTaskQueue(
                 new TolerantQueue<UserDataTask>(
                         new File(Configurations.getUserDataQueueFile()), converter)
         );
-        userDataFolder = new File(Configurations.getUserDataBase());
-        userDataFolder.mkdirs();
-        if (!userDataFolder.canWrite()) {
+        userDataBaseFolder = new File(Configurations.getUserDataBase());
+        userDataBaseFolder.mkdirs();
+        if (!userDataBaseFolder.canWrite()) {
             throw new IOException("userdata folder cannot write");
         }
     }
 
-    public static String getUserDataId(String key) {
+    public static String getEncodedId(String key) {//convert userId to Base32
         return (TextUtils.isEmpty(key)) ? null : new Base32().encodeAsString(key.getBytes());
     }
 
@@ -54,49 +65,91 @@ public class TapeUserDataManager implements UserDataManager {
     }
 
     @Override
-    public void sendData(String id, String content) {
-        if (TextUtils.isEmpty(id) || TextUtils.isEmpty(content)) {
-            Logger.i("post userdata cannot be empty," + id + "," + content);
+    public void sendData(String appId, String entityId, String content) {
+        //TODO:make the right folder path
+        if(appId.trim().length() <= 0) {
+           appId = Configurations.defaultPackage;
+        }
+        if (TextUtils.isEmpty(appId) || TextUtils.isEmpty(entityId) || TextUtils.isEmpty(content)) {
+            Logger.i("post cannot be empty");
             return;
         }
-        String cacheID = getUserDataId(id);
-        Logger.i("cached," + cacheID + "," + content);
+        //String cachEntityId = getEncodedId(entityId);   //why should there encode the id, why not use the entityId directly
+        String username = TurtleManagers.userManager.user.username;
+        if(username == null) {
+            Toast.makeText(TurtleApplication.getAppContext(), "Please Login!", 0);
+            Log.i("LiuCong", "Not Login");
+            return;
+        }
+        File userdataAppFolder = new File(new File(userDataBaseFolder, username), appId);
+        if(!(userdataAppFolder.exists() && userdataAppFolder.isDirectory())) {
+            userdataAppFolder.mkdirs();
+        }
         try {
-            FileUtils.writeStringToFile(
-                    new File(userDataFolder, cacheID),
-                    content
-            );
-            userDataQueue.add(new UserDataTask(id, content, accessToken));
+            FileUtils.writeStringToFile(new File(userdataAppFolder, entityId), content);
+            //TODO:@yannan could add his task at here
+            userDataQueue.add(new UserDataTask(entityId, content, accessToken));  //send just send, not with accessToken
         } catch (IOException e) {
-            Logger.e("write user data failed," + cacheID + "," + content);
+            Logger.e("write user data failed," + entityId + "," + content);
         }
     }
 
     @Override
-    public String getData(String id) {
+    public String getData(String appId, String entityId) {
+//this id just is entityId, but below use it as userId!!!this is not correct, the truth is entityId, because the real param is entityId
+//TODO:implement the new user data save pattern /userdata/userId/appId/entityId  userinfo is a type of user data, the key is not entityId, just is "userInfo"
         String ret = "{}";
-        if (TextUtils.isEmpty(id)) {
-            Logger.i("get userdata empty id," + id);
+        if (TextUtils.isEmpty(appId) || TextUtils.isEmpty(entityId)) {
+            Logger.i("get userdata empty id,");
             return ret;
         }
-        String cacheID = getUserDataId(id);
+        //String cacheID = getUserDataId(id);
+        String username = TurtleManagers.userManager.user.username;
+        if(username == null) {
+            Toast.makeText(TurtleApplication.getAppContext(), "Please Login", 0);
+            Log.i("LiuCong", "getData not login");
+            return null;
+        }
+
+        if(appId.trim().length() <= 0) {
+            appId = Configurations.defaultPackage;
+        }
+
+        File userdataFolder = new File(new File(userDataBaseFolder, username), appId);
         try {
-            File dataFile = new File(userDataFolder, cacheID);
+            File dataFile = new File(userdataFolder, entityId);
             if (!dataFile.exists()) {
-                Logger.v("user data not exists");
+                Log.i("LiuCong", "userdata appId="+appId+"  entityId="+entityId+"  not exist");
             } else {
                 ret = FileUtils.readFileToString(dataFile);
             }
         } catch (IOException e) {
-            Logger.e("read user data failed," + id);
+            Logger.e("read user data failed," + entityId);
         }
         return ret;
     }
 
     @Override
-    public Map<String, String> getAll() {
+    public Map<String, String> getAll(String appId) {
+        String username = TurtleManagers.userManager.user.username;
+        if(username == null) {
+            Toast.makeText(TurtleApplication.getAppContext(), "Please Login", 0);
+            Log.i("LiuCong", "getData not login");
+            return null;
+        }
+
+        if(appId.trim().length() <= 0) {
+            appId = Configurations.defaultPackage;
+        }
+
         Map<String, String> ret = new HashMap<String, String>();
-        File[] files = userDataFolder.listFiles();
+        if(username == null) {
+            Toast.makeText(TurtleApplication.getAppContext(), "Please Login", 0);
+            Log.i("LiuCong", "getAll no Login");
+            return null;
+        }
+        File userdataAppFolder = new File(new File(userDataBaseFolder, username), appId);
+        File[] files = userdataAppFolder.listFiles();
         for (File file : files) {
             try {
                 String key = new String(new Base32().decode(file.getName().getBytes()));
@@ -110,8 +163,16 @@ public class TapeUserDataManager implements UserDataManager {
     }
 
     @Override
-    public int deleteAll() {
-        File[] files = userDataFolder.listFiles();
+    public int deleteAll(String appId) {
+        String username = TurtleManagers.userManager.user.username;
+        if(username == null) {
+            Toast.makeText(TurtleApplication.getAppContext(), "Please Login", 0);
+            Log.i("LiuCong", "deleteAll not Login");
+            return 0;
+        }
+
+        File userdataAppFolder = new File(new File(userDataBaseFolder, username), appId);
+        File[] files = userdataAppFolder.listFiles();
         Logger.i("delete all user data in local files");
         for (File file : files) {
             try {
@@ -128,8 +189,15 @@ public class TapeUserDataManager implements UserDataManager {
                 break;
             }
             userDataQueue.remove();
+            //TODO:if other task need to remove, attention!
         }
         Logger.i("all user data deleted");
         return 0;
+    }
+
+    @Override
+    public String getUserInfo(String appId, String entityId) {
+        Log.i("LiuCong", "TapUserdata: getUserInfo");
+        return getData(appId, entityId);
     }
 }

@@ -11,11 +11,13 @@ public interface UserDataManager {
 
     public UserDataTaskQueue getUserDataQueue();
 
-    public void sendData(String id, String content);
+    public void sendData(String appId, String entityId, String content);
 
-    public String getData(String id);
+    public String getData(String appId, String entityId);
 
-    public Map<String, String> getAll();
+    public Map<String, String> getAll(String appId);
 
-    public int deleteAll();
+    public int deleteAll(String appId);
+
+    public String getUserInfo(String appId, String entityId);
 }

@@ -5,9 +5,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.IBinder;
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.BasicHttpContext;
 import org.sunshinelibrary.turtle.TurtleManagers;
 import org.sunshinelibrary.turtle.models.WebApp;
 import org.sunshinelibrary.turtle.taskmanager.DeleteTask;
@@ -67,18 +77,26 @@ public class AppSyncService extends Service {
             Map<String, WebApp> ret = null;
             InputStream in = null;
             try {
-                URL url = new URL(Configurations.getSunlibAPI(Configurations.SunAPI.APPSJSON));
-                in = url.openStream();
-                // TODO
-                // why use url.getConnection(..).getStream() ???
-                // and get json with IOUtils.toString may cause exception
+                HttpClient client = TurtleManagers.cookieManager.client;
+                BasicHttpContext context = TurtleManagers.cookieManager.httpContext;
+                BasicCookieStore cookieStore = TurtleManagers.cookieManager.cookieStore;
+                if(cookieStore.getCookies().isEmpty()) {
+                    Log.i("LiuCong", "Error: No Cookie");
+                }
+                context.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+
+                String appsRequestUrl = Configurations.getSunlibAPI(Configurations.SunAPI.APPSJSON);
+                HttpGet request = new HttpGet(appsRequestUrl);
+                HttpResponse response = client.execute(request, context);
+
+                in = response.getEntity().getContent();
                 String manifest = IOUtils.toString(in);
                 Type type = new TypeToken<List<WebApp>>() {
                 }.getType();
                 List<WebApp> remoteApps = new Gson().fromJson(manifest, type);
                 ret = new HashMap<String, WebApp>();
                 for (WebApp app : remoteApps) {
-                    ret.put(app.getId(), app);
+                  ret.put(app.getId(), app);
                 }
             } catch (Exception e) {
                 Logger.e("get remote apps failed," + e.getMessage());
@@ -163,6 +181,8 @@ public class AppSyncService extends Service {
                     conn.setDoInput(true);
                     conn.setDoOutput(true);
                     conn.setRequestProperty("Content-Type", "application/json");
+
+                    //TODO:never use this way
                     conn.setRequestProperty("Access-Token", task.accessToken);
 
                     OutputStream os = conn.getOutputStream();
