@@ -50,9 +50,10 @@ public class MixpanelDataManager implements UserDataManager<MixpanelTaskQueue> {
             Log.i(TAG,"POST CONTENT IS EMPTY");
             return;
         }
+        mixpanelTaskQueue.add(new MixpanelTask(target, content));
 
         //String username = TurtleManagers.userManager.user.username;
-        String username = "gynsolomon"; //for test
+        /*String username = "gynsolomon"; //for test
         if(username == null) {
             Toast.makeText(TurtleApplication.getAppContext(), "Please Login!", Toast.LENGTH_LONG).show();
             Log.i(TAG, "Not Login");
@@ -69,8 +70,7 @@ public class MixpanelDataManager implements UserDataManager<MixpanelTaskQueue> {
             mixpanelTaskQueue.add(new MixpanelTask(target, content));
         } catch (IOException e) {
             Log.e(TAG,"write mixpanel data failed, the target is ==>" + target + ",content is ==>" + content);
-        }
-
+        }*/
     }
 
     @Override

@@ -43,8 +43,9 @@ public class MixpanelTask extends PostDataTask {
         os.close();
         conn.connect();
         Log.i(TAG,conn.getResponseMessage());
-        if (conn.getResponseCode() != 200) {
+        if (conn.getResponseCode()>=300 || conn.getResponseCode()<200) {
             Log.e(TAG,"send mixpanel json failed, wait for next sync");
+            return;
         }
         TurtleManagers.mixpanelManager.getPostDataQueue().remove();
     }

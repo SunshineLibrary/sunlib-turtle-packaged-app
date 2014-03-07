@@ -75,7 +75,7 @@ public class TurtleManagers {
             User user = null;//Cookie
             TurtleManagers.userManager.isGetingUser = true;
             String access_token = Configurations.getAccessToken();
-            if(access_token == "" || access_token.trim()=="") {
+            if(access_token.equals("") || access_token.trim().equals("")) {
                 return null;
             }
 
@@ -84,7 +84,14 @@ public class TurtleManagers {
             BasicHttpContext context = TurtleManagers.cookieManager.httpContext;
 
             List<Cookie> cookies = cookieStore.getCookies();
-            cookies.add(new BasicClientCookie("session_id", access_token));
+            if(cookies!=null){
+                try {
+                    cookies.add(new BasicClientCookie("session_id", access_token));
+                }catch (RuntimeException e){
+                    e.printStackTrace();
+                    Logger.e("error occur when add cookies");
+                }
+            }
 
             String url = Configurations.upstreamServer + "/me";
             HttpGet httpGet = new HttpGet(url);

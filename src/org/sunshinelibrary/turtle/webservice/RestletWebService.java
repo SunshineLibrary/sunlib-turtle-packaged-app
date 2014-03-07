@@ -262,8 +262,9 @@ public class RestletWebService extends Service implements WebService {
                     }
                 });
 
-        ////////////////////////////////////////
-
+        /**
+        *   This is for Mixpanel data offline tracking.
+        */
         router.attach("/tracks", new Restlet() {
             @Override
             public void handle(Request request, Response response) {
@@ -273,8 +274,6 @@ public class RestletWebService extends Service implements WebService {
                 if (Method.POST.equals(request.getMethod())) {
                     try {
                         Representation representation = request.getEntity();
-                        //JsonRepresentation jsonRepresentation = new JsonRepresentation(representation);
-                        //JSONObject jObject = jsonRepresentation.getJsonObject();
                         JSONObject jObject = new JSONObject(representation.getText());
                         Log.i(TAG, "type:" + representation.toString() + "====>" + jObject.toString());
                         TurtleManagers.mixpanelManager.sendData(null,"/tracks", jObject.toString());
@@ -296,12 +295,11 @@ public class RestletWebService extends Service implements WebService {
             }
         });
 
-        /////////////////////////////////////////
-
         router.attach("/me", new Restlet() {
             @Override
             public void handle(Request request, Response response) {
                 super.handle(request, response);
+                Logger.e("------------------------------"+"\n"+TurtleManagers.userManager.user.toString());
                 response.setEntity(new StringRepresentation(TurtleManagers.userManager.user.toString()));
             }
         });

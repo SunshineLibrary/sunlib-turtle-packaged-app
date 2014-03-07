@@ -21,16 +21,16 @@ public class Configurations {
     public static final int SYNC_INTERVAL = 30 * 1000;
     public static final String DEFAULT_ACCESS_TOKEN = "test";
 
-    public static String serverHost = "http://192.168.3.51:3000";  //http://192.168.3.100:9460
-    public static String userDataServerHost = "http://192.168.3.51:3000";   //http://192.168.3.100
-    public static String mixpanelTracksHost = "http://192.168.3.51:3000"; //http://t.sunshine-library.org
-    public static String upstreamServer = "http://192.168.3.51:3000";//本机的地址，测试用~
+
+    /**
+     *  Please modify those hosts to your local host address.
+     */
+    public static String serverHost = "http://192.168.3.51:3000";
+    public static String userDataServerHost = "http://192.168.3.51:3000";
+    public static String mixpanelTracksHost = "http://192.168.3.51:3000";
+    public static String upstreamServer = "http://192.168.3.51:3000";
 
     public static String defaultPackage = "exercise";
-
-    //    public static String serverHost = "http://192.168.3.26:3000";
-    //    public static String serverHost = "http://192.168.3.100:9460";
-    //    public static String serverHost = "http://shuwu.sunshine-library.org";
     public static int localPort = 9460;
     public static String localHost = "http://127.0.0.1:" + localPort;
     public static String accessToken;
