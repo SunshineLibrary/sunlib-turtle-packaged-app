@@ -26,7 +26,7 @@ import java.util.Map;
  * Date: 10/16/13
  * Time: 12:09 PM
  */
-public class TapeUserDataManager implements UserDataManager {
+public class TapeUserDataManager implements UserDataManager<UserDataTaskQueue> {
 
     public UserDataTaskQueue userDataQueue;
     private File userDataBaseFolder = null;
@@ -44,9 +44,7 @@ public class TapeUserDataManager implements UserDataManager {
 
         TolerantQueue.Converter<UserDataTask> converter
                 = new GsonConverter<UserDataTask>(new Gson(), UserDataTask.class);
-        userDataQueue = new UserDataTaskQueue(
-                new TolerantQueue<UserDataTask>(
-                        new File(Configurations.getUserDataQueueFile()), converter)
+        userDataQueue = new UserDataTaskQueue(new TolerantQueue<UserDataTask>(new File(Configurations.getUserDataQueueFile()), converter)
         );
         userDataBaseFolder = new File(Configurations.getUserDataBase());
         userDataBaseFolder.mkdirs();
@@ -60,7 +58,7 @@ public class TapeUserDataManager implements UserDataManager {
     }
 
     @Override
-    public UserDataTaskQueue getUserDataQueue() {
+    public UserDataTaskQueue getPostDataQueue() {
         return userDataQueue;
     }
 
@@ -77,7 +75,7 @@ public class TapeUserDataManager implements UserDataManager {
         //String cachEntityId = getEncodedId(entityId);   //why should there encode the id, why not use the entityId directly
         String username = TurtleManagers.userManager.user.username;
         if(username == null) {
-            Toast.makeText(TurtleApplication.getAppContext(), "Please Login!", 0);
+            Toast.makeText(TurtleApplication.getAppContext(), "Please Login!", Toast.LENGTH_LONG).show();
             Log.i("LiuCong", "Not Login");
             return;
         }
@@ -87,7 +85,6 @@ public class TapeUserDataManager implements UserDataManager {
         }
         try {
             FileUtils.writeStringToFile(new File(userdataAppFolder, entityId), content);
-            //TODO:@yannan could add his task at here
             userDataQueue.add(new UserDataTask(entityId, content, accessToken));  //send just send, not with accessToken
         } catch (IOException e) {
             Logger.e("write user data failed," + entityId + "," + content);

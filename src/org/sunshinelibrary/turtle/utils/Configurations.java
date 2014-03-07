@@ -21,9 +21,10 @@ public class Configurations {
     public static final int SYNC_INTERVAL = 30 * 1000;
     public static final String DEFAULT_ACCESS_TOKEN = "test";
 
-    public static String serverHost = "http://192.168.3.52:3000";  //http://192.168.3.100:9460
-    public static String userDataServerHost = "http://192.168.3.52:3000";   //http://192.168.3.100
-    public static String upstreamServer = "http://192.168.3.52:3000";//本机的地址，测试用~
+    public static String serverHost = "http://192.168.3.51:3000";  //http://192.168.3.100:9460
+    public static String userDataServerHost = "http://192.168.3.51:3000";   //http://192.168.3.100
+    public static String mixpanelTracksHost = "http://192.168.3.51:3000"; //http://t.sunshine-library.org
+    public static String upstreamServer = "http://192.168.3.51:3000";//本机的地址，测试用~
 
     public static String defaultPackage = "exercise";
 
@@ -65,6 +66,8 @@ public class Configurations {
             return serverHost + "/apps";
         } else if (SunAPI.USERDATA.equals(api)) {
             return userDataServerHost;
+        } else if (SunAPI.MIXPANEL.equals(api)) {
+            return mixpanelTracksHost;
         }
         return null;
     }
@@ -85,8 +88,16 @@ public class Configurations {
         return getMetaBase() + "/userdata.queue";
     }
 
+    public static String getMixpanelQueueFile() {
+        return getMetaBase() + "/mixpanel.queue";
+    }
+
     public static String getUserDataBase() {
         return getStorageBase() + "/userdata";
+    }
+
+    public static String getMixpanelDataBase() {
+        return getStorageBase() + "/mixpanel";
     }
 
     public static boolean isOnline(Context context) {
@@ -97,7 +108,7 @@ public class Configurations {
     }
 
     public static enum SunAPI {
-        APPSJSON, USERDATA;
+        APPSJSON, USERDATA, MIXPANEL;
     }
 
 

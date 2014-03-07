@@ -10,20 +10,22 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.sunshinelibrary.turtle.TurtleManagers;
+import org.sunshinelibrary.turtle.mixpanel.MixpanelTask;
 import org.sunshinelibrary.turtle.models.WebApp;
 import org.sunshinelibrary.turtle.taskmanager.DeleteTask;
 import org.sunshinelibrary.turtle.taskmanager.DownloadTask;
 import org.sunshinelibrary.turtle.taskmanager.WebAppTask;
 import org.sunshinelibrary.turtle.userdatamanager.UserDataTask;
+import org.sunshinelibrary.turtle.userdatamanager.UserDataTaskQueue;
+import org.sunshinelibrary.turtle.mixpanel.MixpanelTaskQueue;
+
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Diff;
 import org.sunshinelibrary.turtle.utils.DiffManifest;
@@ -165,11 +167,30 @@ public class AppSyncService extends Service {
                 TurtleManagers.taskManager.remove();
             }
 
-//            UserDataTask task = TurtleManagers.userDataManager.getUserDataQueue().peek();
-//            if (task != null) {
+            /* *
+            *
+            * Post Mixpanel Data.
+            *
+            */
             while (true) {
                 try {
-                    UserDataTask task = TurtleManagers.userDataManager.getUserDataQueue().peek();
+                    MixpanelTask task = ((MixpanelTaskQueue)TurtleManagers.mixpanelManager
+                            .getPostDataQueue()).peek();
+                    if (task == null) {
+                        break;
+                    }else{
+                        Logger.i("ready to send mixpanel data");
+                        task.execute("Mixpanel");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    break;
+                }
+            }
+
+            while (true) {
+                try {
+                    UserDataTask task = ((UserDataTaskQueue)TurtleManagers.userDataManager.getPostDataQueue()).peek();
                     Logger.i("ready to send user data");
                     if (task == null) {
                         break;
@@ -198,13 +219,13 @@ public class AppSyncService extends Service {
                         Logger.e("send userdata failed,wait for next sync");
                         break;
                     }
-                    TurtleManagers.userDataManager.getUserDataQueue().remove();
+                    ((UserDataTaskQueue)TurtleManagers.userDataManager.getPostDataQueue()).remove();
                 } catch (Exception e) {
                     e.printStackTrace();
                     break;
                 }
             }
-//            }
+
             Logger.i("onPostExecute complete, success task " + successTask);
             running = false;
             return 0;

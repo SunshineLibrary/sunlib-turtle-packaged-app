@@ -14,6 +14,7 @@ import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.protocol.BasicHttpContext;
 import org.sunshinelibrary.turtle.appmanager.AppManager;
 import org.sunshinelibrary.turtle.appmanager.WebAppManager;
+import org.sunshinelibrary.turtle.mixpanel.MixpanelDataManager;
 import org.sunshinelibrary.turtle.taskmanager.SyncTaskManager;
 import org.sunshinelibrary.turtle.taskmanager.TaskManager;
 import org.sunshinelibrary.turtle.userdatamanager.TapeUserDataManager;
@@ -37,6 +38,7 @@ public class TurtleManagers {
     public static UserDataManager userDataManager;
     public static UserManager userManager;
     public static CookieManager cookieManager;
+    public static MixpanelDataManager mixpanelManager;
     public static boolean isInit = false;
 
     public static void init(Context context) throws Exception {
@@ -57,6 +59,7 @@ public class TurtleManagers {
         taskManager = new SyncTaskManager();
         userDataManager = new TapeUserDataManager(context);
         userManager = new UserManager();
+        mixpanelManager = new MixpanelDataManager();
         isInit = true;
     }
 

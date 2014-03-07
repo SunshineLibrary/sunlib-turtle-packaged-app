@@ -48,6 +48,7 @@ import org.sunshinelibrary.turtle.models.WebApp;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Logger;
 import org.sunshinelibrary.turtle.utils.TurtleInfoUtils;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -109,7 +110,7 @@ public class RestletWebService extends Service implements WebService {
 
                 String requestPath = request.getResourceRef().getPath();
                 if ("/".equals(requestPath)) {
-                    if(TurtleManagers.userManager.user != null) {
+                    if (TurtleManagers.userManager.user != null) {
                         response.redirectTemporary("/dispatch");
                     } else {
                         response.redirectTemporary("/app/login");
@@ -151,30 +152,30 @@ public class RestletWebService extends Service implements WebService {
                     post.setEntity(new UrlEncodedFormEntity(list));
                     HttpResponse httpResponse = client.execute(post, context);
 
-                    if(httpResponse.getStatusLine().getStatusCode() == 200) {
+                    if (httpResponse.getStatusLine().getStatusCode() == 200) {
                         HttpEntity httpEntity = httpResponse.getEntity();
                         InputStream inputStream = httpEntity.getContent();
-                        httpResonpseResult  = convertStreamToString(inputStream);
+                        httpResonpseResult = convertStreamToString(inputStream);
                         User currentUser = new Gson().fromJson(httpResonpseResult, User.class);
                         TurtleManagers.userManager.user = currentUser;
 
                         List<Cookie> cookies = cookieStore.getCookies();
-                        if(!cookies.isEmpty()) {
-                            for(Cookie cookie : cookies) {
+                        if (!cookies.isEmpty()) {
+                            for (Cookie cookie : cookies) {
                                 String cookieString = cookie.getName() + " : " + cookie.getValue();
-                                if("connect.sid".equals(cookie.getName())) {
+                                if ("connect.sid".equals(cookie.getName())) {
                                     TurtleInfoUtils.writeAccessToken(TurtleApplication.getAppContext(), cookie.getValue());
                                 }
                             }
                         }
 
-                        if(TurtleManagers.userManager.user != null) {
+                        if (TurtleManagers.userManager.user != null) {
                             File userFolder = new File(Configurations.getUserDataBase(), TurtleManagers.userManager.user.username);
-                            if(!userFolder.exists()) {
+                            if (!userFolder.exists()) {
                                 userFolder.mkdirs();
                             }
                         }
-                    }else{
+                    } else {
                         Log.i("Turtle", "Not 200");
                     }
                 } catch (UnsupportedEncodingException e) {
@@ -206,9 +207,9 @@ public class RestletWebService extends Service implements WebService {
             public void handle(Request request, Response response) {
                 super.handle(request, response);
                 User user = TurtleManagers.userManager.user;
-                if(user != null) {
-                    if(!"teacher".equals(user.usergroup)) {
-                        if(user.isProfileFullfill()) {
+                if (user != null) {
+                    if (!"teacher".equals(user.usergroup)) {
+                        if (user.isProfileFullfill()) {
                             response.redirectTemporary("/app/navigator");
                         } else {
                             response.redirectTemporary("/app/navigator");
@@ -267,26 +268,34 @@ public class RestletWebService extends Service implements WebService {
             @Override
             public void handle(Request request, Response response) {
                 final String TAG = "tracks";
-                String ret = null;
+                String ret;
+                Status status;
                 if (Method.POST.equals(request.getMethod())) {
                     try {
                         Representation representation = request.getEntity();
-                        JsonRepresentation jsonRepresentation = new JsonRepresentation(representation);
-                        JSONObject jObject = jsonRepresentation.getJsonObject();
-                        Log.i(TAG,"type:"+jsonRepresentation.toString()+"====>"+jObject.toString());
-
-                        //TODO: add task to post data to t.sunshine & fix the issue that will cause post several times.
+                        //JsonRepresentation jsonRepresentation = new JsonRepresentation(representation);
+                        //JSONObject jObject = jsonRepresentation.getJsonObject();
+                        JSONObject jObject = new JSONObject(representation.getText());
+                        Log.i(TAG, "type:" + representation.toString() + "====>" + jObject.toString());
+                        TurtleManagers.mixpanelManager.sendData(null,"/tracks", jObject.toString());
+                        status = Status.SUCCESS_OK;
+                        ret = "success";
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Log.e(TAG,"get body from request failed");
+                        Log.e(TAG, "get body from request failed");
+                        status = Status.CLIENT_ERROR_UNSUPPORTED_MEDIA_TYPE;
+                        ret = "Parse mixpanel json failed";
                     }
-                }else{
+                } else {
+                    status = Status.SERVER_ERROR_NOT_IMPLEMENTED;
                     ret = "api use error";
-                    Log.e(TAG,"error use tracks api, should be http post");
+                    Log.e(TAG, "error use tracks api, should be http post");
                 }
+                response.setStatus(status);
                 response.setEntity(new StringRepresentation(ret));
             }
         });
+
         /////////////////////////////////////////
 
         router.attach("/me", new Restlet() {
@@ -302,9 +311,9 @@ public class RestletWebService extends Service implements WebService {
             public void handle(Request request, Response response) {
                 super.handle(request, response);
                 String userInfo = "";
-                if(Method.GET.equals(request.getMethod())) {
+                if (Method.GET.equals(request.getMethod())) {
                     userInfo = TurtleManagers.userDataManager.getUserInfo("me", "info");
-                } else if(Method.POST.equals(request.getMethod())) {
+                } else if (Method.POST.equals(request.getMethod())) {
                     try {
                         String content = request.getEntity().getText();
                         TurtleManagers.userDataManager.sendData("me", "info", content);
