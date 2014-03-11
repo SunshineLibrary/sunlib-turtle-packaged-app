@@ -102,8 +102,12 @@ public class TurtleInfoUtils {
         }  */
 
         // This is for retrieving accesstoken from turtle app on Android.
-        SharedPreferences preferences = context.getSharedPreferences("LOGIN", Context.MODE_PRIVATE);
-        access_token = preferences.getString("access_token", "");
+        try{
+            SharedPreferences preferences = context.getSharedPreferences("LOGIN", Context.MODE_PRIVATE);
+            access_token = preferences.getString("access_token", "");
+        }catch(Exception e){
+            e.printStackTrace();
+        }
         return access_token;
     }
 

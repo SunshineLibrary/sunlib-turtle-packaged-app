@@ -10,7 +10,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.android.internal.util.Predicate;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -41,19 +40,18 @@ import org.restlet.routing.Template;
 import org.sunshinelibrary.turtle.R;
 import org.sunshinelibrary.turtle.TurtleApplication;
 import org.sunshinelibrary.turtle.TurtleManagers;
-import org.sunshinelibrary.turtle.User;
+import org.sunshinelibrary.turtle.user.User;
 import org.sunshinelibrary.turtle.appmanager.WebAppException;
 import org.sunshinelibrary.turtle.models.NativeApp;
 import org.sunshinelibrary.turtle.models.WebApp;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Logger;
+import org.sunshinelibrary.turtle.utils.StreamToString;
 import org.sunshinelibrary.turtle.utils.TurtleInfoUtils;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.*;
@@ -90,9 +88,6 @@ public class RestletWebService extends Service implements WebService {
     @Override
     public void onCreate() {
         super.onCreate();
-        // start the server
-        // bind "/" to app with id==0
-        // Setup a new instance
 
         // start server
         Component component = new Component();
@@ -117,8 +112,7 @@ public class RestletWebService extends Service implements WebService {
                     }
                     return;
                 }
-//                response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-//                response.setEntity(new StringRepresentation("<a href='/'>刷新</a>"));
+
                 try {
                     response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
                     response.setEntity(new InputRepresentation(getAssets().open("404.html")));
@@ -128,10 +122,33 @@ public class RestletWebService extends Service implements WebService {
             }
         });
 
+        router.attach("/dispatch", new Restlet() {
+            @Override
+            public void handle(Request request, Response response) {
+                super.handle(request, response);
+                User user = TurtleManagers.userManager.user;
+                if (user != null) {
+                    if (!"teacher".equals(user.usergroup)) {
+                        if (user.isProfileFullfill()) {
+                            response.redirectTemporary("/app/navigator");
+                        } else {
+                            response.redirectTemporary("/app/navigator");
+                        }
+                    } else {
+                        response.redirectTemporary("/app/me");
+                    }
+                } else {
+                    response.redirectTemporary("/");
+                }
+            }
+        });
+
         router.attach("/login", new Restlet() {
             @Override
             public void handle(Request request, Response response) {
                 super.handle(request, response);
+
+                //Todo: 在此检查 token
                 String newRequestUrl = Configurations.upstreamServer + request.getResourceRef().getPath();
 
                 List<NameValuePair> list = new ArrayList<NameValuePair>();
@@ -152,10 +169,10 @@ public class RestletWebService extends Service implements WebService {
                     post.setEntity(new UrlEncodedFormEntity(list));
                     HttpResponse httpResponse = client.execute(post, context);
 
-                    if (httpResponse.getStatusLine().getStatusCode() == 200) {
+                    if (httpResponse.getStatusLine().getStatusCode() >= 200 && httpResponse.getStatusLine().getStatusCode()<300) {
                         HttpEntity httpEntity = httpResponse.getEntity();
                         InputStream inputStream = httpEntity.getContent();
-                        httpResonpseResult = convertStreamToString(inputStream);
+                        httpResonpseResult = StreamToString.convertStreamToString(inputStream);
                         User currentUser = new Gson().fromJson(httpResonpseResult, User.class);
                         TurtleManagers.userManager.user = currentUser;
 
@@ -176,7 +193,7 @@ public class RestletWebService extends Service implements WebService {
                             }
                         }
                     } else {
-                        Log.i("Turtle", "Not 200");
+                        Logger.e("online login failed!");
                     }
                 } catch (UnsupportedEncodingException e) {
                     Log.i("Turtle", "UnsupportedEncodingException");
@@ -192,34 +209,27 @@ public class RestletWebService extends Service implements WebService {
             }
         });
 
-        router.attach("/logout", new Restlet() {
+        router.attach("/me", new Restlet() {
+            @Override
+            public void handle(Request request, Response response) {
+                super.handle(request, response);
+                if(TurtleManagers.userManager.user!=null){
+                    response.setStatus(Status.SUCCESS_OK);
+                    response.setEntity(new JsonRepresentation(new Gson().toJson(TurtleManagers.userManager.user)));
+                }else{
+                    response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+                    response.setEntity(new JsonRepresentation("{'message':'未登录'}"));
+                }
+            }
+        });
+
+        router.attach("/signout", new Restlet() {
             @Override
             public void handle(Request request, Response response) {
                 super.handle(request, response);
                 TurtleManagers.userManager.user = null;
                 TurtleInfoUtils.destroyInfo(TurtleApplication.getAppContext());
                 response.redirectTemporary("/");
-            }
-        });
-
-        router.attach("/dispatch", new Restlet() {
-            @Override
-            public void handle(Request request, Response response) {
-                super.handle(request, response);
-                User user = TurtleManagers.userManager.user;
-                if (user != null) {
-                    if (!"teacher".equals(user.usergroup)) {
-                        if (user.isProfileFullfill()) {
-                            response.redirectTemporary("/app/navigator");
-                        } else {
-                            response.redirectTemporary("/app/navigator");
-                        }
-                    } else {
-                        response.redirectTemporary("/app/navigator");
-                    }
-                } else {
-                    response.redirectTemporary("/");
-                }
             }
         });
 
@@ -295,14 +305,7 @@ public class RestletWebService extends Service implements WebService {
             }
         });
 
-        router.attach("/me", new Restlet() {
-            @Override
-            public void handle(Request request, Response response) {
-                super.handle(request, response);
-                Logger.e("------------------------------"+"\n"+TurtleManagers.userManager.user.toString());
-                response.setEntity(new StringRepresentation(TurtleManagers.userManager.user.toString()));
-            }
-        });
+
 
         router.attach("/userdata/me/info", new Restlet() {
             @Override
@@ -347,28 +350,6 @@ public class RestletWebService extends Service implements WebService {
             e.printStackTrace();
         }
 
-    }
-
-    private static String convertStreamToString(InputStream is) {
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-
-        String line = null;
-        try {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return sb.toString();
     }
 
     @Override

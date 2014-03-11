@@ -40,12 +40,14 @@
 
         <service android:name=".webservice.RestletWebService"/>
         <service android:name=".syncservice.AppSyncService"/>
+        <service android:name=".user.UserService"/>
         <service android:name=".init.InitService"
                  android:exported="true">
             <intent-filter>
                 <action android:name="org.sunshinelibrary.turtle.service"/>
             </intent-filter>
         </service>
+        <service android:name=".user.UserService"/>
 
         <activity android:name=".reader.PdfActivity"
                   android:label="@string/app_name">

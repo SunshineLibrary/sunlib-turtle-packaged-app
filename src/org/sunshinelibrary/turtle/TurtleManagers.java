@@ -17,11 +17,13 @@ import org.sunshinelibrary.turtle.appmanager.WebAppManager;
 import org.sunshinelibrary.turtle.mixpanel.MixpanelDataManager;
 import org.sunshinelibrary.turtle.taskmanager.SyncTaskManager;
 import org.sunshinelibrary.turtle.taskmanager.TaskManager;
+import org.sunshinelibrary.turtle.user.User;
 import org.sunshinelibrary.turtle.userdatamanager.TapeUserDataManager;
 import org.sunshinelibrary.turtle.userdatamanager.UserDataManager;
-import org.sunshinelibrary.turtle.usermanager.UserManager;
+import org.sunshinelibrary.turtle.user.UserManager;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Logger;
+import org.sunshinelibrary.turtle.utils.StreamToString;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,67 +63,5 @@ public class TurtleManagers {
         userManager = new UserManager();
         mixpanelManager = new MixpanelDataManager();
         isInit = true;
-    }
-
-    public static void loginTask() {
-        new LoginTask().execute();
-    }
-
-
-    private static class LoginTask extends AsyncTask<Void, Void, User> {
-
-        @Override
-        protected User doInBackground(Void... voids) {
-            User user = null;//Cookie
-            TurtleManagers.userManager.isGetingUser = true;
-            String access_token = Configurations.getAccessToken();
-            if(access_token.equals("") || access_token.trim().equals("")) {
-                return null;
-            }
-
-            DefaultHttpClient client = TurtleManagers.cookieManager.client;
-            BasicCookieStore cookieStore = TurtleManagers.cookieManager.cookieStore;
-            BasicHttpContext context = TurtleManagers.cookieManager.httpContext;
-
-            List<Cookie> cookies = cookieStore.getCookies();
-            if(cookies!=null){
-                try {
-                    cookies.add(new BasicClientCookie("session_id", access_token));
-                }catch (RuntimeException e){
-                    e.printStackTrace();
-                    Logger.e("error occur when add cookies");
-                }
-            }
-
-            String url = Configurations.upstreamServer + "/me";
-            HttpGet httpGet = new HttpGet(url);
-
-            try {
-                HttpResponse httpResponse = client.execute(httpGet, context);
-                if(httpResponse.getStatusLine().getStatusCode() == 200) {
-                    String userString = httpResponse.getEntity().toString();
-                    user = new Gson().fromJson(userString, User.class);
-                } else {
-                    Log.i("Turtle", "Server Response is not 200, but is " + httpResponse.getStatusLine().getStatusCode());
-                }
-            } catch (IOException e) {
-                Log.i("Turtle", "Server Error");
-                e.printStackTrace();
-            }
-            return user;
-        }
-
-        @Override
-        protected void onPostExecute(User user) {
-            super.onPostExecute(user);
-            TurtleManagers.userManager.isGetingUser = false;
-            TurtleManagers.userManager.user = user;
-            if(user != null) {
-                File userdataFolder = new File(Configurations.getUserDataBase(), user.username);
-                if(!userdataFolder.exists()) {
-                    userdataFolder.mkdirs();
-                }
-            }
-        }
     }
 }
