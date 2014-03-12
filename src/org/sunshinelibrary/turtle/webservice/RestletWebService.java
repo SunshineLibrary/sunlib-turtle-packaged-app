@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 import com.android.internal.util.Predicate;
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
@@ -44,6 +45,7 @@ import org.sunshinelibrary.turtle.user.User;
 import org.sunshinelibrary.turtle.appmanager.WebAppException;
 import org.sunshinelibrary.turtle.models.NativeApp;
 import org.sunshinelibrary.turtle.models.WebApp;
+import org.sunshinelibrary.turtle.user.UserManager;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Logger;
 import org.sunshinelibrary.turtle.utils.StreamToString;
@@ -108,7 +110,7 @@ public class RestletWebService extends Service implements WebService {
                     if (TurtleManagers.userManager.user != null) {
                         response.redirectTemporary("/dispatch");
                     } else {
-                        response.redirectTemporary("/app/login");
+                        response.redirectTemporary("/webapp/login");
                     }
                     return;
                 }
@@ -129,13 +131,14 @@ public class RestletWebService extends Service implements WebService {
                 User user = TurtleManagers.userManager.user;
                 if (user != null) {
                     if (!"teacher".equals(user.usergroup)) {
-                        if (user.isProfileFullfill()) {
-                            response.redirectTemporary("/app/navigator");
-                        } else {
-                            response.redirectTemporary("/app/navigator");
-                        }
+                        response.redirectTemporary("/webapp/navigator");
+//                        if (user.isProfileFullfill()) {
+//                            response.redirectTemporary("/webapp/navigator");
+//                        } else {
+//                            response.redirectTemporary("/webapp/navigator");
+//                        }
                     } else {
-                        response.redirectTemporary("/app/me");
+                        response.redirectTemporary("/webapp/me");
                     }
                 } else {
                     response.redirectTemporary("/");
@@ -147,10 +150,7 @@ public class RestletWebService extends Service implements WebService {
             @Override
             public void handle(Request request, Response response) {
                 super.handle(request, response);
-
-                //Todo: 在此检查 token
                 String newRequestUrl = Configurations.upstreamServer + request.getResourceRef().getPath();
-
                 List<NameValuePair> list = new ArrayList<NameValuePair>();
                 Form form = new Form(request.getEntity());
                 Parameter parameter = form.get(0);
@@ -181,6 +181,7 @@ public class RestletWebService extends Service implements WebService {
                             for (Cookie cookie : cookies) {
                                 String cookieString = cookie.getName() + " : " + cookie.getValue();
                                 if ("connect.sid".equals(cookie.getName())) {
+                                    Logger.i("=-=-=-=-=-=-=-=-=-=-=->Token Written:"+ cookie.getValue());
                                     TurtleInfoUtils.writeAccessToken(TurtleApplication.getAppContext(), cookie.getValue());
                                 }
                             }
@@ -217,19 +218,35 @@ public class RestletWebService extends Service implements WebService {
                     response.setStatus(Status.SUCCESS_OK);
                     response.setEntity(new JsonRepresentation(new Gson().toJson(TurtleManagers.userManager.user)));
                 }else{
-                    response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+                    response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
                     response.setEntity(new JsonRepresentation("{'message':'未登录'}"));
                 }
             }
         });
 
+
+        /**
+         * Fake signout operation in turtle for it's no use to cache signout request.
+         */
         router.attach("/signout", new Restlet() {
             @Override
             public void handle(Request request, Response response) {
                 super.handle(request, response);
-                TurtleManagers.userManager.user = null;
-                TurtleInfoUtils.destroyInfo(TurtleApplication.getAppContext());
-                response.redirectTemporary("/");
+                Status status;
+                String ret;
+
+                if(!Configurations.isOnline(RestletWebService.this)){
+                    Toast.makeText(RestletWebService.this,"无网络连接，无法进行该操作",Toast.LENGTH_LONG).show();
+                    status = Status.CLIENT_ERROR_BAD_REQUEST;
+                    ret = "无网络连接";
+                }else{
+                    status = Status.SUCCESS_OK;
+                    ret = "已登出";
+                    TurtleManagers.userManager.clearUser();
+                    response.redirectTemporary("/");
+                }
+                response.setStatus(status);
+                response.setEntity(new StringRepresentation(ret));
             }
         });
 
@@ -341,7 +358,7 @@ public class RestletWebService extends Service implements WebService {
 
         Application application = new SimpleApplication(router);
         // serve all app folder         //TODO:Host the static file, ex: lesson.json
-        component.getDefaultHost().attach("/app/", new FileApplication("file://" + Configurations.getAppBase()));
+        component.getDefaultHost().attach("/webapp/", new FileApplication("file://" + Configurations.getAppBase()));
         component.getDefaultHost().attach("", application);
         try {
             component.start();

@@ -1,16 +1,16 @@
 package org.sunshinelibrary.turtle.taskmanager;
 
 import android.os.AsyncTask;
-import android.util.Log;
 import com.google.gson.Gson;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.cookie.Cookie;
+import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.protocol.BasicHttpContext;
 import org.sunshinelibrary.turtle.TurtleManagers;
+import org.sunshinelibrary.turtle.init.InitService;
 import org.sunshinelibrary.turtle.user.User;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Logger;
@@ -18,7 +18,6 @@ import org.sunshinelibrary.turtle.utils.StreamToString;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -30,42 +29,55 @@ import java.util.List;
 public class LoginTask extends AsyncTask<Void, Void, User>{
 
     @Override
+    protected void onPreExecute(){
+        InitService.isLoginTaskRunning = true;
+        Logger.i("-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-> Turtle is doing login task!!!");
+    }
+
+    @Override
     protected User doInBackground(Void... voids) {
         User user = null;
         TurtleManagers.userManager.isGetingUser = true;
-        String access_token = Configurations.getAccessToken();
+        String access_token = TurtleManagers.userManager.getAccessToken();
         if(!access_token.equals("") &&  access_token != null) {
+            Logger.i("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-》Token: "+access_token);
 
             DefaultHttpClient client = TurtleManagers.cookieManager.client;
             BasicCookieStore cookieStore = TurtleManagers.cookieManager.cookieStore;
             BasicHttpContext context = TurtleManagers.cookieManager.httpContext;
 
-            List<Cookie> cookies = cookieStore.getCookies();
-            if(cookies!=null){
-                try {
-                    cookies.add(new BasicClientCookie("session_id", access_token));
-                }catch (RuntimeException e){
-                    e.printStackTrace();
-                    Logger.e("error occur when add cookies");
-                }
-            }
-
-            String url = Configurations.upstreamServer + "/me";
-            HttpGet httpGet = new HttpGet(url);
-
             try {
-                HttpResponse httpResponse = client.execute(httpGet, context);
-                if(httpResponse.getStatusLine().getStatusCode() == 200) {
-                    String userString = StreamToString.convertStreamToString(httpResponse.getEntity().getContent());
-                    Logger.i("userString====>"+userString);
-                    user = new Gson().fromJson(userString, User.class);
-                } else {
-                    Log.i("Turtle", "Server Response is not 200, but is " + httpResponse.getStatusLine().getStatusCode());
+                cookieStore.addCookie(new BasicClientCookie("session_id", access_token));
+                Logger.i("-=-=-=-=-=-=-=-=-=-=-=-=-=-=->SuccessAddAccessTOkenToCookie!!");
+                context.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+
+                // 尝试在线向云端服务器登录获取用户信息， 以验证当前token 是否失效，如果失效，则删除所有用户信息。
+                String url = Configurations.upstreamServer + "/me";
+                HttpGet httpGet = new HttpGet(url);
+
+                try {
+                    HttpResponse httpResponse = client.execute(httpGet, context);
+                    if(httpResponse.getStatusLine().getStatusCode() == 200) {
+                        String userString = StreamToString.convertStreamToString(httpResponse.getEntity().getContent());
+                        user = new Gson().fromJson(userString, User.class);
+                        Logger.i("Turtle Login Task Succeed");
+                    } else{
+                        // 验证未通过，当前 token 失效，清空所有 "tmp" & "file stored" UserInfo.
+                        TurtleManagers.userManager.clearUser();
+                        Logger.e("Turtle Login Task Failed, clear user info");
+                    }
+                } catch (IOException e) {
+                    Logger.i("Server Error");
+                    e.printStackTrace();
+                    this.cancel(true);
                 }
-            } catch (IOException e) {
-                Log.i("Turtle", "Server Error");
+            }catch (RuntimeException e){
                 e.printStackTrace();
+                Logger.e("error occur when add cookies");
+                //this.cancel(true);
             }
+        } else{
+            Logger.i("-=-=-=-=-=-=-=-=-=-=-=>Cannot find accesstoken!");
         }
         return user;
     }
@@ -81,5 +93,6 @@ public class LoginTask extends AsyncTask<Void, Void, User>{
                 userdataFolder.mkdirs();
             }
         }
+        InitService.isLoginTaskRunning = false;
     }
 }

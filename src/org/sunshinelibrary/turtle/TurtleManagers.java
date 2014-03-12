@@ -60,8 +60,9 @@ public class TurtleManagers {
         appManager = new WebAppManager(context);
         taskManager = new SyncTaskManager();
         userDataManager = new TapeUserDataManager(context);
-        userManager = new UserManager();
+        userManager = new UserManager(context);
         mixpanelManager = new MixpanelDataManager();
+        cookieManager = new CookieManager();
         isInit = true;
     }
 }

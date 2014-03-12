@@ -19,6 +19,7 @@ public class SyncTriggerReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Logger.i("trigger sync");
+        TurtleManagers.userManager.login();
         Intent syncIntent = new Intent(context, AppSyncService.class);
         context.startService(syncIntent);
 

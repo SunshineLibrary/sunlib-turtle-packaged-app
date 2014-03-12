@@ -11,15 +11,6 @@ public class User {
     public String _id;
     public String name;
 
-    public User() {
-        this.username = "LiuCong";
-        this.password = "root";
-        this.usergroup = "teacher";
-        this._id = "test";
-        this.name = "test";
-
-    }
-
     private class Profile {
         public String gender;
         public String birthday;

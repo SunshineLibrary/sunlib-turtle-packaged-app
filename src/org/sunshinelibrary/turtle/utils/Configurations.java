@@ -77,7 +77,7 @@ public class Configurations {
     }
 
     public static String getAppBase() {
-        return getStorageBase() + "/app";
+        return getStorageBase() + "/webapp";
     }
 
     public static String getMetaBase() {

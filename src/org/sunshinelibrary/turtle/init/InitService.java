@@ -12,7 +12,6 @@ import org.sunshinelibrary.turtle.TurtleManagers;
 import org.sunshinelibrary.turtle.appmanager.WebAppException;
 import org.sunshinelibrary.turtle.syncservice.AppSyncService;
 import org.sunshinelibrary.turtle.syncservice.SyncEvent;
-import org.sunshinelibrary.turtle.user.UserService;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Logger;
 import org.sunshinelibrary.turtle.webservice.RestletWebService;
@@ -26,6 +25,8 @@ import java.io.IOException;
  * Time: 5:27 PM
  */
 public class InitService extends Service {
+
+    public static boolean isLoginTaskRunning = false;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -60,8 +61,6 @@ public class InitService extends Service {
         startService(serverIntent);
         Intent syncIntent = new Intent(this, AppSyncService.class);
         startService(syncIntent);
-        Intent userIntent = new Intent(this, UserService.class);
-        startService(userIntent);
         startIntervalAlarm();
         return Service.START_STICKY;
     }
