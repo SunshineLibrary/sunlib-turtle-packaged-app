@@ -3,6 +3,8 @@ package org.sunshinelibrary.turtle.models;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 /**
  * User: fxp
  * Date: 10/14/13
@@ -20,6 +22,7 @@ public class WebApp {
     //    public String url;
 //    public String home;
     // the whole manifest.json in app zip
+    public ArrayList<String> mirrors;
     public String download_url;
     public JSONObject manifest;
 

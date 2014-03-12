@@ -1,7 +1,15 @@
 package org.sunshinelibrary.turtle.taskmanager;
 
 import android.text.TextUtils;
+import android.util.Log;
 import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.sunshinelibrary.turtle.TurtleManagers;
 import org.sunshinelibrary.turtle.appmanager.WebAppException;
 import org.sunshinelibrary.turtle.models.WebApp;
@@ -61,8 +69,20 @@ public class DownloadTask extends WebAppTask {
             if (!app.download_url.startsWith("http://")) {
                 app.download_url = Configurations.serverHost + app.download_url;
             }
+
+
             URL url = new URL(app.download_url);
-            downloadFileFromUrl(url, tmpFile);
+
+            if (app.mirrors != null && app.mirrors.size()>0 && touch(new URL(app.mirrors.get(0)))){
+                URL mirror = new URL(app.mirrors.get(0));
+                state = "downloading from local cache";
+                app.download_url = mirror.toString();
+                downloadFileFromUrl(mirror, tmpFile);
+            } else {
+                state = "downloading from cloud";
+                downloadFileFromUrl(url, tmpFile);
+            }
+
 //            FileUtils.copyURLToFile(url, tmpFile);
             File zipFile = tmpFile;
 
@@ -91,6 +111,24 @@ public class DownloadTask extends WebAppTask {
                     e1.printStackTrace();
                 }
             }
+        }
+    }
+
+    private boolean touch(URL url) {
+        HttpHead httpRequest = new HttpHead(url.toString());
+        try {
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpResponse httpResponse = httpclient.execute(httpRequest);
+            return (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) ;
+        } catch (ClientProtocolException e) {
+            Log.i("DownloadTask", e.getMessage());
+            return false;
+        } catch (IOException e) {
+            Log.i("DownloadTask", e.getMessage());
+            return false;
+        } catch (Exception e) {
+            Log.i("DownloadTask", e.getMessage());
+            return false;
         }
     }
 
