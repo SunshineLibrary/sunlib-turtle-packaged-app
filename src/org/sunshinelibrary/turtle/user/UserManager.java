@@ -32,7 +32,7 @@ public class UserManager {
     }
 
     public void clearUser(){
-        TurtleInfoUtils.destroyInfo(mContext);   //shared_prefs
+        TurtleInfoUtils.destroyInfo(mContext);                    //shared_prefs
         TurtleManagers.cookieManager.cookieStore.clear();         //cookie
         TurtleManagers.userManager.user = null;                   //memory user
     }

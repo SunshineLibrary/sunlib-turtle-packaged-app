@@ -45,7 +45,6 @@ import org.sunshinelibrary.turtle.user.User;
 import org.sunshinelibrary.turtle.appmanager.WebAppException;
 import org.sunshinelibrary.turtle.models.NativeApp;
 import org.sunshinelibrary.turtle.models.WebApp;
-import org.sunshinelibrary.turtle.user.UserManager;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Logger;
 import org.sunshinelibrary.turtle.utils.StreamToString;
