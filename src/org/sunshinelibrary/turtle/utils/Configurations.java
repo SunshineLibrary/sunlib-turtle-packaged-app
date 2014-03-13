@@ -25,10 +25,15 @@ public class Configurations {
     /**
      *  Please modify those hosts to your local host address.
      */
-    public static String serverHost = "http://t.ghxz.cn";
-    public static String userDataServerHost = "http://t.ghxz.cn";
-    public static String mixpanelTracksHost = "http://t.ghxz.cn";
-    public static String upstreamServer = "http://t.ghxz.cn";
+    /*public static String serverHost = "http://192.168.3.100:9461";
+    public static String userDataServerHost = "http://192.168.3.100:9461";
+    public static String mixpanelTracksHost = "http://192.168.3.100:9461";
+    public static String upstreamServer = "http://192.168.3.100:9461";*/
+
+    public static String serverHost = "http://192.168.3.51:3000";
+    public static String userDataServerHost = "http://192.168.3.51:3000";
+    public static String mixpanelTracksHost = "http://192.168.3.51:3000";
+    public static String upstreamServer = "http://192.168.3.51:3000";
 
     public static String defaultPackage = "exercise";
     public static int localPort = 9460;

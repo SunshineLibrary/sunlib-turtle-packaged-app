@@ -194,6 +194,7 @@ public class RestletWebService extends Service implements WebService {
                         }
                     } else {
                         Logger.e("online login failed!");
+                        Logger.e(StreamToString.convertStreamToString(httpResponse.getEntity().getContent()));
                     }
                 } catch (UnsupportedEncodingException e) {
                     Log.i("Turtle", "UnsupportedEncodingException");
