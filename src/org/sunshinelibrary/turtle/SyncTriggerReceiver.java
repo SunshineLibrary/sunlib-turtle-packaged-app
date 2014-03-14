@@ -19,7 +19,12 @@ public class SyncTriggerReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Logger.i("trigger sync");
-        TurtleManagers.userManager.login();
+        try{
+            TurtleManagers.userManager.login();
+        }catch (NullPointerException e){
+            e.printStackTrace();
+            Logger.e("-=-=-=-=-=-=-> Current userManager is Null !!");
+        }
         Intent syncIntent = new Intent(context, AppSyncService.class);
         context.startService(syncIntent);
 

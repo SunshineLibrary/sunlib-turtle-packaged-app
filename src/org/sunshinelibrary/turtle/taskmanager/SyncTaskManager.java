@@ -22,9 +22,14 @@ public class SyncTaskManager implements TaskManager {
 
     @Override
     public WebAppTask remove() {
-        WebAppTask ret = tasks.remove();
-        for (TaskManagerCallback callback : callbackList) {
-            callback.onTaskChange();
+        WebAppTask ret = null;
+        try{
+            ret = tasks.remove();
+            for (TaskManagerCallback callback : callbackList) {
+                callback.onTaskChange();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
         return ret;
     }
