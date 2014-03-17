@@ -129,15 +129,30 @@ public class RestletWebService extends Service implements WebService {
                 super.handle(request, response);
                 User user = TurtleManagers.userManager.user;
                 if (user != null) {
-                    if (!"teacher".equals(user.usergroup)) {
-                        response.redirectTemporary("/webapp/navigator");
+                    TurtleManagers.appManager.refresh();
+
+                    // Must got all the essential apps.
+                    if(TurtleManagers.appManager.getApp("navigator")!=null &&
+                            TurtleManagers.appManager.getApp("lesson")!=null &&
+                            TurtleManagers.appManager.getApp("me") !=null){
+
+                        if (!"teacher".equals(user.usergroup)) {
+                            response.redirectTemporary("/webapp/navigator");
 //                        if (user.isProfileFullfill()) {
 //                            response.redirectTemporary("/webapp/navigator");
 //                        } else {
-//                            response.redirectTemporary("/webapp/navigator");
+//                            response.redirectTemporary("/webapp/me");
 //                        }
-                    } else {
-                        response.redirectTemporary("/webapp/me");
+                        } else {
+                            response.redirectTemporary("/webapp/me");
+                        }
+                    }else{
+                        try {
+                            response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+                            response.setEntity(new InputRepresentation(getAssets().open("downloading.html")));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 } else {
                     response.redirectTemporary("/");

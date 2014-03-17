@@ -17,6 +17,7 @@ public class Configurations {
     public static final String TURTLE_SHARED_PREFERENCE = "Turtle";
     public static final String TURTLE_SHARED_PREFERENCE_INIT = "init";
     public static final String LAUNCHER_APP_FILE = "0.zip";
+    public static final String LOGIN_APP_FILE = "login.zip";
     public static final String storageBase = "/sdcard/.turtle";
     public static final int SYNC_INTERVAL = 30 * 1000;
     public static final String DEFAULT_ACCESS_TOKEN = "test";

@@ -26,10 +26,7 @@ import org.sunshinelibrary.turtle.userdatamanager.UserDataTask;
 import org.sunshinelibrary.turtle.userdatamanager.UserDataTaskQueue;
 import org.sunshinelibrary.turtle.mixpanel.MixpanelTaskQueue;
 
-import org.sunshinelibrary.turtle.utils.Configurations;
-import org.sunshinelibrary.turtle.utils.Diff;
-import org.sunshinelibrary.turtle.utils.DiffManifest;
-import org.sunshinelibrary.turtle.utils.Logger;
+import org.sunshinelibrary.turtle.utils.*;
 
 import java.io.BufferedWriter;
 import java.io.InputStream;
@@ -73,7 +70,13 @@ public class AppSyncService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    public static class SyncTask extends AsyncTask<Void, Integer, Integer> {
+    class SyncTask extends AsyncTask<Void, Integer, Integer> {
+
+        //TODO: move getRemoteApps operation here
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+        }
 
         public Map<String, WebApp> getRemoteApps() {
             Map<String, WebApp> ret = null;
@@ -156,9 +159,15 @@ public class AppSyncService extends Service {
                     break;
                 }
                 try {
-                    task.execute();
-                    if (task.isOk()) {
-                        successTask++;
+                    if(task.getClass() == DownloadTask.class &&
+                            (TurtleInfoUtils.getAccessToken(AppSyncService.this) == null ||
+                                    TurtleInfoUtils.getAccessToken(AppSyncService.this).equals(""))){
+                        // 等待用户登录，以便个性化下载wpk
+                    }else{
+                        task.execute();
+                        if (task.isOk()) {
+                            successTask++;
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

@@ -39,8 +39,13 @@ public class InitService extends Service {
             TurtleManagers.init(InitService.this);
             TurtleManagers.userManager.login(); //尝试携带本地信息去登录
             TurtleManagers.appManager.refresh();//mount完毕所有apps下面的folder
-            if (TurtleManagers.appManager.getApp("0") == null) {//检测是否有0.zip，如果木有则需要弄一个，必须要有！应该是那个dashboard,显示所有是web而不是chapter，并且launchable的
+            if (TurtleManagers.appManager.getApp("0") == null) {
                 //initLauncherApp();
+            }
+
+            // 内置 Login webapp, 用于用户初始登录，以便后续下载 wpk
+            if (TurtleManagers.appManager.getApp("login") == null) {
+                initLoginApp();
             }
         } catch (Exception e) {
             Logger.e("turtle initialized incorrect," + e.getMessage());
@@ -71,6 +76,16 @@ public class InitService extends Service {
         FileUtils.copyInputStreamToFile(getAssets().open(Configurations.LAUNCHER_APP_FILE), tmpFile);
         TurtleManagers.appManager.installApp(tmpFile);
     }
+
+
+    private void initLoginApp() throws IOException, WebAppException {
+        Logger.i("Prepare install webapp-login");
+        File tmpFile = File.createTempFile("turtle_", "tmp");
+        FileUtils.copyInputStreamToFile(getAssets().open(Configurations.LOGIN_APP_FILE), tmpFile);
+        TurtleManagers.appManager.installApp(tmpFile);
+    }
+
+
 
     public void startIntervalAlarm() {
         PendingIntent pendingIntent = SyncEvent.SYNC_START.createBroadcast(this);

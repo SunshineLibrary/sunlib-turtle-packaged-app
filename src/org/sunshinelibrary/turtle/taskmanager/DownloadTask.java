@@ -7,8 +7,12 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.util.EntityUtils;
 import org.sunshinelibrary.turtle.TurtleManagers;
 import org.sunshinelibrary.turtle.appmanager.WebAppException;
@@ -134,14 +138,34 @@ public class DownloadTask extends WebAppTask {
 
     private void downloadFileFromUrl(URL url, File dstFile) throws IOException {
         int count;
-        URLConnection conection = url.openConnection();
+
+
+/*        URLConnection conection = url.openConnection();
         conection.setConnectTimeout(5000);
         conection.setReadTimeout(3000);
         conection.connect();
         // getting file length
-        int lenghtOfFile = conection.getContentLength();
-        // input stream to read file - with 8k buffer
-        InputStream input = new BufferedInputStream(url.openStream(), 8192);
+        //int lenghtOfFile = conection.getContentLength();
+        //input stream to read file - with 8k buffer
+        //InputStream input = new BufferedInputStream(url.openStream(), 8192);*/
+
+        //////////////////////////////////////////////////////// get wpk with cookie(token)
+
+        HttpClient client = TurtleManagers.cookieManager.client;
+        BasicHttpContext context = TurtleManagers.cookieManager.httpContext;
+        BasicCookieStore cookieStore = TurtleManagers.cookieManager.cookieStore;
+        if(cookieStore.getCookies().isEmpty()) {
+            Logger.e("There's something wrong, cookie not found");
+            return;
+        }
+        context.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+        HttpGet request = new HttpGet(url.toString());
+        HttpResponse response = client.execute(request, context);
+        long lengthOfFile = response.getEntity().getContentLength();
+        InputStream input = new BufferedInputStream(response.getEntity().getContent(), 8192);
+
+        /////////////////////////////////////////////////////////
+
         // Output stream to write file
         OutputStream output = new FileOutputStream(dstFile);
         byte data[] = new byte[1024 * 4];
@@ -150,7 +174,7 @@ public class DownloadTask extends WebAppTask {
             total += count;
             // publishing the progress....
             // After this onProgressUpdate will be called
-            progress = (int) ((total * 100) / lenghtOfFile);
+            progress = (int) ((total * 100) / lengthOfFile);
             // writing data to file
             output.write(data, 0, count);
         }
