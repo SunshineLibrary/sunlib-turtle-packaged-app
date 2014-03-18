@@ -45,7 +45,7 @@ public class MixpanelDataManager implements UserDataManager<MixpanelTaskQueue> {
     }
 
     @Override
-    public void sendData(String appId, String target, String content) {
+    public void sendData(String appId, String target, String content,String httpMethod) {
         if (TextUtils.isEmpty(content)) {
             Log.i(TAG,"POST CONTENT IS EMPTY");
             return;

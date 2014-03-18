@@ -17,7 +17,8 @@ public interface UserDataManager<T> {
      * @param entityId
      * @param content
      */
-    public void sendData(String appId, String entityId, String content);
+
+    public void sendData(String appId, String entityId, String content,String httpMethod);
 
     public String getData(String appId, String entityId);
 

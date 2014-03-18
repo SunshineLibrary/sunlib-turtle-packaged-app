@@ -71,7 +71,7 @@ public class Configurations {
         if (SunAPI.APPSJSON.equals(api)) {
             return serverHost + "/apps";
         } else if (SunAPI.USERDATA.equals(api)) {
-            return userDataServerHost;
+            return userDataServerHost + "/userdata/";
         } else if (SunAPI.MIXPANEL.equals(api)) {
             return mixpanelTracksHost;
         }

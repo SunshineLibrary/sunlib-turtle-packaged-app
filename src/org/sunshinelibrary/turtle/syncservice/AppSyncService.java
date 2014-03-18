@@ -176,7 +176,7 @@ public class AppSyncService extends Service {
                 TurtleManagers.taskManager.remove();
             }
 
-            /* *
+           /**
             *
             * Post Mixpanel Data.
             *
@@ -197,38 +197,21 @@ public class AppSyncService extends Service {
                 }
             }
 
+            /**
+             *
+             *  Post User Data.
+             *
+             */
             while (true) {
                 try {
-                    UserDataTask task = ((UserDataTaskQueue)TurtleManagers.userDataManager.getPostDataQueue()).peek();
-                    Logger.i("ready to send user data");
+                    UserDataTask task = ((UserDataTaskQueue)TurtleManagers.userDataManager
+                            .getPostDataQueue()).peek();
                     if (task == null) {
                         break;
+                    }else{
+                        Logger.i("ready to send user data");
+                        task.execute("UserData");
                     }
-                    URL url = null;
-                    url = new URL(Configurations.getSunlibAPI(Configurations.SunAPI.USERDATA) + task.target);
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("POST");
-                    conn.setDoInput(true);
-                    conn.setDoOutput(true);
-                    conn.setRequestProperty("Content-Type", "application/json");
-
-                    //TODO:never use this way
-                    conn.setRequestProperty("Access-Token", task.accessToken);
-
-                    OutputStream os = conn.getOutputStream();
-                    BufferedWriter writer = new BufferedWriter(
-                            new OutputStreamWriter(os, "UTF-8"));
-                    writer.write(task.content);
-                    writer.flush();
-                    writer.close();
-                    os.close();
-                    conn.connect();
-                    Logger.i(conn.getResponseMessage());
-                    if (conn.getResponseCode() != 200) {
-                        Logger.e("send userdata failed,wait for next sync");
-                        break;
-                    }
-                    ((UserDataTaskQueue)TurtleManagers.userDataManager.getPostDataQueue()).remove();
                 } catch (Exception e) {
                     e.printStackTrace();
                     break;

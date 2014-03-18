@@ -63,7 +63,7 @@ public class TapeUserDataManager implements UserDataManager<UserDataTaskQueue> {
     }
 
     @Override
-    public void sendData(String appId, String entityId, String content) {
+    public void sendData(String appId, String entityId, String content,String httpMethod) {
         //TODO:make the right folder path
         if(appId.trim().length() <= 0) {
            appId = Configurations.defaultPackage;
@@ -72,7 +72,6 @@ public class TapeUserDataManager implements UserDataManager<UserDataTaskQueue> {
             Logger.i("post cannot be empty");
             return;
         }
-        //String cachEntityId = getEncodedId(entityId);   //why should there encode the id, why not use the entityId directly
         String username = TurtleManagers.userManager.user.username;
         if(username == null) {
             Toast.makeText(TurtleApplication.getAppContext(), "Please Login!", Toast.LENGTH_LONG).show();
@@ -85,7 +84,7 @@ public class TapeUserDataManager implements UserDataManager<UserDataTaskQueue> {
         }
         try {
             FileUtils.writeStringToFile(new File(userdataAppFolder, entityId), content);
-            userDataQueue.add(new UserDataTask(entityId, content, accessToken));  //send just send, not with accessToken
+            userDataQueue.add(new UserDataTask(appId+"/"+entityId, content, accessToken,httpMethod));  //send just send, not with accessToken
         } catch (IOException e) {
             Logger.e("write user data failed," + entityId + "," + content);
         }
@@ -103,7 +102,7 @@ public class TapeUserDataManager implements UserDataManager<UserDataTaskQueue> {
         //String cacheID = getUserDataId(id);
         String username = TurtleManagers.userManager.user.username;
         if(username == null) {
-            Toast.makeText(TurtleApplication.getAppContext(), "Please Login", 0);
+            Toast.makeText(TurtleApplication.getAppContext(), "Please Login", 0).show();
             Log.i("LiuCong", "getData not login");
             return null;
         }

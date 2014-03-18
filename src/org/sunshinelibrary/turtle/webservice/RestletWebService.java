@@ -146,9 +146,9 @@ public class RestletWebService extends Service implements WebService {
                         } else {
                             response.redirectTemporary("/webapp/me");
                         }
-                    }else{
+                    }else{ // SHOW THE DOWNLOADING INFO TO USER. WAIT FOR WEBAPP DOWNLOAD COMPLETE.
                         try {
-                            response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+                            response.setStatus(Status.CLIENT_ERROR_FAILED_DEPENDENCY);
                             response.setEntity(new InputRepresentation(getAssets().open("downloading.html")));
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -193,7 +193,6 @@ public class RestletWebService extends Service implements WebService {
                         List<Cookie> cookies = cookieStore.getCookies();
                         if (!cookies.isEmpty()) {
                             for (Cookie cookie : cookies) {
-                                String cookieString = cookie.getName() + " : " + cookie.getValue();
                                 if ("connect.sid".equals(cookie.getName())) {
                                     Logger.i("=-=-=-=-=-=-=-=-=-=-=->Token Written:"+ cookie.getValue());
                                     TurtleInfoUtils.writeAccessToken(TurtleApplication.getAppContext(), cookie.getValue());
@@ -318,7 +317,7 @@ public class RestletWebService extends Service implements WebService {
                         Representation representation = request.getEntity();
                         JSONObject jObject = new JSONObject(representation.getText());
                         Log.i(TAG, "type:" + representation.toString() + "====>" + jObject.toString());
-                        TurtleManagers.mixpanelManager.sendData(null,"/tracks", jObject.toString());
+                        TurtleManagers.mixpanelManager.sendData(null,"/tracks", jObject.toString(),request.getMethod().toString());
                         status = Status.SUCCESS_OK;
                         ret = "success";
                     } catch (Exception e) {
@@ -349,7 +348,7 @@ public class RestletWebService extends Service implements WebService {
                 } else if (Method.POST.equals(request.getMethod())) {
                     try {
                         String content = request.getEntity().getText();
-                        TurtleManagers.userDataManager.sendData("me", "info", content);
+                        TurtleManagers.userDataManager.sendData("me", "info", content,request.getMethod().toString());
                         userInfo = content;
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -363,9 +362,42 @@ public class RestletWebService extends Service implements WebService {
             @Override
             public void handle(Request request, Response response) {
                 super.handle(request, response);
-                response.setEntity(new StringRepresentation(new User().toString()));
+
+                Status status;
+                String ret;
+
+                String appId = request.getResourceRef().getSegments().get(1);
+                String entityId = request.getResourceRef().getSegments().get(2);
+
+                if (Method.GET.equals(request.getMethod())) {
+                    status = Status.SUCCESS_OK;
+                    Logger.i("------>get appid"+appId);
+                    Logger.i("------>get entityId"+entityId);
+                    ret = TurtleManagers.userDataManager.getData(appId, entityId);
+                    Logger.i("------------->Got UserData"+ret);
+                    response.setStatus(status);
+                    response.setEntity(new JsonRepresentation(ret));
+                } else {
+                    try{
+                        Representation representation = request.getEntity();
+                        String content = representation.getText();
+                        Logger.i("------------->"+"AppId:"+appId+" EntityId:"+entityId+" ENTITY:"+content);
+                        TurtleManagers.userDataManager.sendData(appId, entityId, content,request.getMethod().toString());
+                        status = Status.SUCCESS_OK;
+                        ret = "Succeed POST/PUT Userdata";
+                    }catch (IOException e){
+                        e.printStackTrace();
+                        status = Status.SERVER_ERROR_INTERNAL;
+                        ret = e.getMessage();
+                    }
+                    response.setStatus(status);
+                    response.setEntity(new StringRepresentation(ret));
+                }
+
             }
         });
+
+
         router.attach("/reader", new ReaderRestlet());
 
         router.attach("/debug", new DebuggerRestlet());
