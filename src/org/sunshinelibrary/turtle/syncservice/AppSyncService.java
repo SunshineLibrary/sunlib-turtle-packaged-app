@@ -63,6 +63,8 @@ public class AppSyncService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Logger.i("------------->isAppSyncServiceRunning==>"+running);
+        Logger.i("------------->isOnline==>"+Configurations.isOnline(this));
         if (!running && Configurations.isOnline(this)) {
             new SyncTask().execute();
             running = true;
@@ -204,6 +206,8 @@ public class AppSyncService extends Service {
              */
             while (true) {
                 try {
+                    Logger.i("-------------->while true userdata task number:"+((UserDataTaskQueue)TurtleManagers.userDataManager
+                            .getPostDataQueue()).size());
                     UserDataTask task = ((UserDataTaskQueue)TurtleManagers.userDataManager
                             .getPostDataQueue()).peek();
                     if (task == null) {

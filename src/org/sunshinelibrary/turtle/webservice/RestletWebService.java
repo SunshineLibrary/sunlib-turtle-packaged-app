@@ -362,7 +362,6 @@ public class RestletWebService extends Service implements WebService {
             @Override
             public void handle(Request request, Response response) {
                 super.handle(request, response);
-
                 Status status;
                 String ret;
 
@@ -371,21 +370,19 @@ public class RestletWebService extends Service implements WebService {
 
                 if (Method.GET.equals(request.getMethod())) {
                     status = Status.SUCCESS_OK;
-                    Logger.i("------>get appid"+appId);
-                    Logger.i("------>get entityId"+entityId);
                     ret = TurtleManagers.userDataManager.getData(appId, entityId);
-                    Logger.i("------------->Got UserData"+ret);
                     response.setStatus(status);
                     response.setEntity(new JsonRepresentation(ret));
                 } else {
                     try{
                         Representation representation = request.getEntity();
-                        String content = representation.getText();
-                        Logger.i("------------->"+"AppId:"+appId+" EntityId:"+entityId+" ENTITY:"+content);
-                        TurtleManagers.userDataManager.sendData(appId, entityId, content,request.getMethod().toString());
+                        JSONObject jObject = new JSONObject(representation.getText());
+                        Logger.i("Receive userdata post from client------------->"+"AppId:"+appId+" EntityId:"+entityId+" ENTITY:"+jObject.toString());
+                        Logger.i("Http Method------>"+request.getMethod().toString());
+                        TurtleManagers.userDataManager.sendData(appId, entityId, jObject.toString(),request.getMethod().toString());
                         status = Status.SUCCESS_OK;
                         ret = "Succeed POST/PUT Userdata";
-                    }catch (IOException e){
+                    }catch (Exception e){
                         e.printStackTrace();
                         status = Status.SERVER_ERROR_INTERNAL;
                         ret = e.getMessage();
@@ -393,15 +390,12 @@ public class RestletWebService extends Service implements WebService {
                     response.setStatus(status);
                     response.setEntity(new StringRepresentation(ret));
                 }
-
             }
         });
-
 
         router.attach("/reader", new ReaderRestlet());
 
         router.attach("/debug", new DebuggerRestlet());
-
 
         Application application = new SimpleApplication(router);
         // serve all app folder         //TODO:Host the static file, ex: lesson.json

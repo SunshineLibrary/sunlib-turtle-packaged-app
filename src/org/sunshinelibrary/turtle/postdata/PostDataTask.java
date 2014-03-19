@@ -14,17 +14,10 @@ import java.io.Serializable;
 public abstract class PostDataTask implements Serializable, Task<String> {
     public String target;
     public String content;
-    public String accessToken;
 
     public PostDataTask(String target, String content) {
         this.target = target;
         this.content = content;
-    }
-
-    public PostDataTask(String target, String content, String accessToken) {
-        this.target = target;
-        this.content = content;
-        this.accessToken = accessToken;
     }
 
     @Override

@@ -24,6 +24,7 @@ import org.sunshinelibrary.turtle.user.UserManager;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Logger;
 import org.sunshinelibrary.turtle.utils.StreamToString;
+import org.sunshinelibrary.turtle.utils.TurtleInfoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,6 +56,8 @@ public class TurtleManagers {
         } else {
             Logger.i("turtle already installed, maybe upgrade");
         }
+
+        String accessToken = TurtleInfoUtils.getAccessToken(context);
 
         Configurations.init(context);
         appManager = new WebAppManager(context);

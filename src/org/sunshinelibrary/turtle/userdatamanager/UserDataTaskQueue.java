@@ -10,8 +10,6 @@ import com.squareup.tape.TaskQueue;
  */
 
 public class UserDataTaskQueue extends TaskQueue<UserDataTask> {
-
-
     public UserDataTaskQueue(ObjectQueue<UserDataTask> delegate) {
         super(delegate);
     }

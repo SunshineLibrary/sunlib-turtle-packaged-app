@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.io.FileUtils;
+import org.restlet.data.Encoding;
 import org.sunshinelibrary.turtle.TurtleApplication;
 import org.sunshinelibrary.turtle.TurtleManagers;
 import org.sunshinelibrary.turtle.utils.Configurations;
@@ -30,18 +31,10 @@ public class TapeUserDataManager implements UserDataManager<UserDataTaskQueue> {
 
     public UserDataTaskQueue userDataQueue;
     private File userDataBaseFolder = null;
-    private String accessToken = null;
 
     //TODO:the constructor function need to change
 
     public TapeUserDataManager(Context context) throws IOException {
-//through the accessToken to get the username, then make the username folder to host all the user data belong to the user
-        accessToken = Configurations.getAccessToken();
-        //TODO:through the accessToken get the username, then create the username folder
-        if (accessToken == null) {
-            throw new IOException("access token is null");
-        }
-
         TolerantQueue.Converter<UserDataTask> converter
                 = new GsonConverter<UserDataTask>(new Gson(), UserDataTask.class);
         userDataQueue = new UserDataTaskQueue(new TolerantQueue<UserDataTask>(new File(Configurations.getUserDataQueueFile()), converter)
@@ -83,8 +76,9 @@ public class TapeUserDataManager implements UserDataManager<UserDataTaskQueue> {
             userdataAppFolder.mkdirs();
         }
         try {
-            FileUtils.writeStringToFile(new File(userdataAppFolder, entityId), content);
-            userDataQueue.add(new UserDataTask(appId+"/"+entityId, content, accessToken,httpMethod));  //send just send, not with accessToken
+            FileUtils.writeStringToFile(new File(userdataAppFolder, entityId), content, "UTF-8");
+            userDataQueue.add(new UserDataTask(appId+"/"+entityId, content,httpMethod));
+            Logger.i("-------------->Task +1 and UserDataTaskQueue Number: "+userDataQueue.size());
         } catch (IOException e) {
             Logger.e("write user data failed," + entityId + "," + content);
         }
