@@ -43,19 +43,14 @@ public class LoginTask extends AsyncTask<Void, Void, User>{
 
     @Override
     protected void onPreExecute(){
-        String access_token = TurtleManagers.userManager.getAccessToken();
-        if(access_token!=null && !access_token.equals("")){
-            TurtleManagers.cookieManager.cookieStore.addCookie(new BasicClientCookie("session_id", access_token));
-        }
-
         if(!Configurations.isOnline(mContext)){
-            if(TurtleManagers.userManager.user==null){
+            Logger.i("LoginTaskStart under offline network");
+            if(TurtleManagers.userManager.user==null && !TurtleInfoUtils.getUserInfo(mContext).equals("")){
                 TurtleManagers.userManager.user = new Gson().fromJson(TurtleInfoUtils.getUserInfo(mContext),User.class);
             }
             this.cancel(true);
             return;
         }
-
         InitService.isLoginTaskRunning = true;
         Logger.i("-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-> Turtle is doing login task!!!");
     }
@@ -67,13 +62,12 @@ public class LoginTask extends AsyncTask<Void, Void, User>{
         String access_token = TurtleManagers.userManager.getAccessToken();
         if(!access_token.equals("") &&  access_token != null) {
             Logger.i("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-》Token: "+access_token);
-
             DefaultHttpClient client = TurtleManagers.cookieManager.client;
             BasicCookieStore cookieStore = TurtleManagers.cookieManager.cookieStore;
             BasicHttpContext context = TurtleManagers.cookieManager.httpContext;
 
             try {
-                cookieStore.addCookie(new BasicClientCookie("connect.sid", access_token));
+                cookieStore.addCookie(new BasicClientCookie("session_id", access_token));
                 Logger.i("-=-=-=-=-=-=-=-=-=-=-=-=-=-=->SuccessAddAccessTOkenToCookie!!");
                 context.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
 
