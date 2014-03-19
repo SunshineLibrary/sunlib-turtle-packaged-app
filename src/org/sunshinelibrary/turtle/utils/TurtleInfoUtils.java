@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.widget.Toast;
+import com.google.gson.Gson;
 import org.apache.http.conn.util.InetAddressUtils;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
@@ -111,17 +113,32 @@ public class TurtleInfoUtils {
         return access_token;
     }
 
-    public static void writeAccessToken(Context context, String access_token) {
+    public static void writeAccessToken(Context context, String access_token, JSONObject jsonObject) {
         SharedPreferences preferences = context.getSharedPreferences("LOGIN", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("access_token", access_token);
+        editor.putString("userinfo", jsonObject.toString());
         editor.commit();
     }
+
+    public static String getUserInfo(Context context){
+        String userinfo = null;
+        try{
+            SharedPreferences preferences = context.getSharedPreferences("LOGIN", Context.MODE_PRIVATE);
+            userinfo = preferences.getString("userinfo", "");
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return userinfo;
+    }
+
 
     public static void destroyInfo(Context context) {
         SharedPreferences preferences = context.getSharedPreferences("LOGIN", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.remove("access_token").commit();
+        editor.remove("access_token");
+        editor.remove("userinfo");
+        editor.commit();
     }
 
 }

@@ -1,5 +1,7 @@
 package org.sunshinelibrary.turtle.taskmanager;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import com.google.gson.Gson;
 import org.apache.http.HttpResponse;
@@ -11,10 +13,13 @@ import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.protocol.BasicHttpContext;
 import org.sunshinelibrary.turtle.TurtleManagers;
 import org.sunshinelibrary.turtle.init.InitService;
+import org.sunshinelibrary.turtle.syncservice.AppSyncService;
 import org.sunshinelibrary.turtle.user.User;
 import org.sunshinelibrary.turtle.utils.Configurations;
 import org.sunshinelibrary.turtle.utils.Logger;
 import org.sunshinelibrary.turtle.utils.StreamToString;
+import org.sunshinelibrary.turtle.utils.TurtleInfoUtils;
+import org.sunshinelibrary.turtle.webservice.RestletWebService;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,8 +33,29 @@ import java.io.IOException;
 
 public class LoginTask extends AsyncTask<Void, Void, User>{
 
+    private Context mContext;
+
+    public LoginTask(Context context){
+        this.mContext = context;
+        Intent serverIntent = new Intent(mContext, RestletWebService.class);
+        mContext.startService(serverIntent);
+    }
+
     @Override
     protected void onPreExecute(){
+        String access_token = TurtleManagers.userManager.getAccessToken();
+        if(access_token!=null && !access_token.equals("")){
+            TurtleManagers.cookieManager.cookieStore.addCookie(new BasicClientCookie("session_id", access_token));
+        }
+
+        if(!Configurations.isOnline(mContext)){
+            if(TurtleManagers.userManager.user==null){
+                TurtleManagers.userManager.user = new Gson().fromJson(TurtleInfoUtils.getUserInfo(mContext),User.class);
+            }
+            this.cancel(true);
+            return;
+        }
+
         InitService.isLoginTaskRunning = true;
         Logger.i("-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-> Turtle is doing login task!!!");
     }
@@ -47,7 +73,7 @@ public class LoginTask extends AsyncTask<Void, Void, User>{
             BasicHttpContext context = TurtleManagers.cookieManager.httpContext;
 
             try {
-                cookieStore.addCookie(new BasicClientCookie("session_id", access_token));
+                cookieStore.addCookie(new BasicClientCookie("connect.sid", access_token));
                 Logger.i("-=-=-=-=-=-=-=-=-=-=-=-=-=-=->SuccessAddAccessTOkenToCookie!!");
                 context.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
 
@@ -57,7 +83,7 @@ public class LoginTask extends AsyncTask<Void, Void, User>{
 
                 try {
                     HttpResponse httpResponse = client.execute(httpGet, context);
-                    if(httpResponse.getStatusLine().getStatusCode() == 200) {
+                    if(httpResponse.getStatusLine().getStatusCode() >= 200 && httpResponse.getStatusLine().getStatusCode()<300) {
                         String userString = StreamToString.convertStreamToString(httpResponse.getEntity().getContent());
                         user = new Gson().fromJson(userString, User.class);
                         Logger.i("Turtle Login Task Succeed");
@@ -92,6 +118,8 @@ public class LoginTask extends AsyncTask<Void, Void, User>{
             if(!userdataFolder.exists()) {
                 userdataFolder.mkdirs();
             }
+            Intent syncIntent = new Intent(mContext, AppSyncService.class);
+            mContext.startService(syncIntent);
         }
         InitService.isLoginTaskRunning = false;
     }

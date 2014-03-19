@@ -205,20 +205,22 @@ public class AppSyncService extends Service {
              *
              */
             while (true) {
-                try {
-                    Logger.i("-------------->while true userdata task number:"+((UserDataTaskQueue)TurtleManagers.userDataManager
-                            .getPostDataQueue()).size());
-                    UserDataTask task = ((UserDataTaskQueue)TurtleManagers.userDataManager
-                            .getPostDataQueue()).peek();
-                    if (task == null) {
+                if(TurtleManagers.userManager.user!=null){
+                    try {
+                        Logger.i("-------------->while true userdata task number:"+((UserDataTaskQueue)TurtleManagers.userDataManager
+                                .getPostDataQueue()).size());
+                        UserDataTask task = ((UserDataTaskQueue)TurtleManagers.userDataManager
+                                .getPostDataQueue()).peek();
+                        if (task == null) {
+                            break;
+                        }else{
+                            Logger.i("ready to send user data");
+                            task.execute("UserData");
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                         break;
-                    }else{
-                        Logger.i("ready to send user data");
-                        task.execute("UserData");
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    break;
                 }
             }
 

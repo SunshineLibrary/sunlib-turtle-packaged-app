@@ -11,6 +11,13 @@ public class User {
     public String _id;
     public String name;
 
+    public User(){
+        this.username = "test";
+        this.usergroup = "test";
+        this.name = "test";
+        this._id = "test";
+    }
+
     private class Profile {
         public String gender;
         public String birthday;

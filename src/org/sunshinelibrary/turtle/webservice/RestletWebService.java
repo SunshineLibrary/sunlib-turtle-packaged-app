@@ -24,6 +24,7 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.*;
 import org.restlet.data.Form;
@@ -195,7 +196,7 @@ public class RestletWebService extends Service implements WebService {
                             for (Cookie cookie : cookies) {
                                 if ("connect.sid".equals(cookie.getName())) {
                                     Logger.i("=-=-=-=-=-=-=-=-=-=-=->Token Written:"+ cookie.getValue());
-                                    TurtleInfoUtils.writeAccessToken(TurtleApplication.getAppContext(), cookie.getValue());
+                                    TurtleInfoUtils.writeAccessToken(TurtleApplication.getAppContext(), cookie.getValue(),new JSONObject(new Gson().toJson(currentUser)));
                                 }
                             }
                         }
@@ -219,6 +220,9 @@ public class RestletWebService extends Service implements WebService {
                 } catch (IOException e) {
                     Log.i("Turtle", "IOException");
                     e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Logger.i("Userinfo JSON SYNTAX ERROR");
                 }
                 response.setEntity(new StringRepresentation(httpResonpseResult));
             }

@@ -35,13 +35,11 @@ public class InitService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
+        Logger.i("--------------------->InitService Started !!!");
         try {
             TurtleManagers.init(InitService.this);
             TurtleManagers.userManager.login(); //尝试携带本地信息去登录
             TurtleManagers.appManager.refresh();//mount完毕所有apps下面的folder
-            if (TurtleManagers.appManager.getApp("0") == null) {
-                //initLauncherApp();
-            }
 
             // 内置 Login webapp, 用于用户初始登录，以便后续下载 wpk
             if (TurtleManagers.appManager.getApp("login") == null) {
@@ -61,22 +59,9 @@ public class InitService extends Service {
             throw new RuntimeException(e);
         }
 
-        //apps加载完毕，基本folder就绪，0.zip完毕，isTurtleOn标志位写入完毕.启动基础服务
-        Intent serverIntent = new Intent(this, RestletWebService.class);
-        startService(serverIntent);
-        Intent syncIntent = new Intent(this, AppSyncService.class);
-        startService(syncIntent);
         startIntervalAlarm();
         return Service.START_STICKY;
     }
-
-    private void initLauncherApp() throws IOException, WebAppException {//如果没有搞定0.zip那么上面就会导致tyr..catch中抛出Exception
-        Logger.i("launcher not exits, install preinstall one");
-        File tmpFile = File.createTempFile("turtle_", "tmp");
-        FileUtils.copyInputStreamToFile(getAssets().open(Configurations.LAUNCHER_APP_FILE), tmpFile);
-        TurtleManagers.appManager.installApp(tmpFile);
-    }
-
 
     private void initLoginApp() throws IOException, WebAppException {
         Logger.i("Prepare install webapp-login");
@@ -84,8 +69,6 @@ public class InitService extends Service {
         FileUtils.copyInputStreamToFile(getAssets().open(Configurations.LOGIN_APP_FILE), tmpFile);
         TurtleManagers.appManager.installApp(tmpFile);
     }
-
-
 
     public void startIntervalAlarm() {
         PendingIntent pendingIntent = SyncEvent.SYNC_START.createBroadcast(this);

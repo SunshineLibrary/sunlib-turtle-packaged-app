@@ -22,8 +22,8 @@ public class UserManager {
     }
 
     public void login(){
-        if(!InitService.isLoginTaskRunning && Configurations.isOnline(mContext)){
-            new LoginTask().execute();
+        if(!InitService.isLoginTaskRunning){
+            new LoginTask(mContext).execute();
         }
     }
 

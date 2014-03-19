@@ -57,8 +57,6 @@ public class TurtleManagers {
             Logger.i("turtle already installed, maybe upgrade");
         }
 
-        String accessToken = TurtleInfoUtils.getAccessToken(context);
-
         Configurations.init(context);
         appManager = new WebAppManager(context);
         taskManager = new SyncTaskManager();
@@ -66,9 +64,6 @@ public class TurtleManagers {
         userManager = new UserManager(context);
         mixpanelManager = new MixpanelDataManager();
         cookieManager = new CookieManager();
-        if(accessToken!=null && !accessToken.equals("")){
-            cookieManager.cookieStore.addCookie(new BasicClientCookie("connect.sid",accessToken));
-        }
         isInit = true;
     }
 }
