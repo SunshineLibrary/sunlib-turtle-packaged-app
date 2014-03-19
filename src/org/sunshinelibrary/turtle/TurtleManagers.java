@@ -66,6 +66,9 @@ public class TurtleManagers {
         userManager = new UserManager(context);
         mixpanelManager = new MixpanelDataManager();
         cookieManager = new CookieManager();
+        if(accessToken!=null && !accessToken.equals("")){
+            cookieManager.cookieStore.addCookie(new BasicClientCookie("connect.sid",accessToken));
+        }
         isInit = true;
     }
 }
