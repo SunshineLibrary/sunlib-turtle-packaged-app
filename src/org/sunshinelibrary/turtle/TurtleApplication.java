@@ -23,8 +23,10 @@ public class TurtleApplication extends Application {
         super.onCreate();
         Logger.v("Application start");
         TurtleApplication.context = getApplicationContext();
-        Intent intent = new Intent(this, InitService.class);
-        startService(intent);
+        if(!InitService.isRunning){
+            Intent intent = new Intent(this, InitService.class);
+            startService(intent);
+        }
     }
 
     public static Context getAppContext() {

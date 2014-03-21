@@ -179,7 +179,7 @@ public class RestletWebService extends Service implements WebService {
                 context.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
                 HttpPost post = new HttpPost(newRequestUrl);
 
-                String httpResonpseResult = "";
+                String httpResponseResult = "";
                 try {
                     post.setEntity(new UrlEncodedFormEntity(list));
                     HttpResponse httpResponse = client.execute(post, context);
@@ -187,16 +187,16 @@ public class RestletWebService extends Service implements WebService {
                     if (httpResponse.getStatusLine().getStatusCode() >= 200 && httpResponse.getStatusLine().getStatusCode()<300) {
                         HttpEntity httpEntity = httpResponse.getEntity();
                         InputStream inputStream = httpEntity.getContent();
-                        httpResonpseResult = StreamToString.convertStreamToString(inputStream);
-                        User currentUser = new Gson().fromJson(httpResonpseResult, User.class);
+                        httpResponseResult = StreamToString.convertStreamToString(inputStream);
+                        User currentUser = new Gson().fromJson(httpResponseResult, User.class);
                         TurtleManagers.userManager.user = currentUser;
 
                         List<Cookie> cookies = cookieStore.getCookies();
                         if (!cookies.isEmpty()) {
                             for (Cookie cookie : cookies) {
                                 if ("connect.sid".equals(cookie.getName())) {
-                                    Logger.i("=-=-=-=-=-=-=-=-=-=-=->Token Written:"+ cookie.getValue());
-                                    TurtleInfoUtils.writeAccessToken(TurtleApplication.getAppContext(), cookie.getValue(),new JSONObject(new Gson().toJson(currentUser)));
+                                    Logger.i("--------->Cookie: "+new Gson().toJson(cookie));
+                                    TurtleInfoUtils.writeAccessToken(TurtleApplication.getAppContext(), new Gson().toJson(cookie),new JSONObject(new Gson().toJson(currentUser)));
                                 }
                             }
                         }
@@ -224,7 +224,7 @@ public class RestletWebService extends Service implements WebService {
                     e.printStackTrace();
                     Logger.i("Userinfo JSON SYNTAX ERROR");
                 }
-                response.setEntity(new StringRepresentation(httpResonpseResult));
+                response.setEntity(new StringRepresentation(httpResponseResult));
             }
         });
 

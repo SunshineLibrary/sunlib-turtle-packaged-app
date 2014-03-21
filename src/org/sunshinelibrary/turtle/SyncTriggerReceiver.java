@@ -19,7 +19,7 @@ public class SyncTriggerReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Logger.i("trigger sync");
-        if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
+        if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED) && !InitService.isRunning){
             Intent initIntent = new Intent(context, InitService.class);
             context.startService(initIntent);
         }else{

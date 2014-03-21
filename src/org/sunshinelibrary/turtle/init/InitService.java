@@ -27,6 +27,7 @@ import java.io.IOException;
 public class InitService extends Service {
 
     public static boolean isLoginTaskRunning = false;
+    public static boolean isRunning = false;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -36,6 +37,7 @@ public class InitService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
         Logger.i("--------------------->InitService Started !!!");
+        isRunning = true;
         try {
             TurtleManagers.init(InitService.this);
             TurtleManagers.userManager.login(); //尝试携带本地信息去登录
