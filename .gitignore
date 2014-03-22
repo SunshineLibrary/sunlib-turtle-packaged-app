@@ -1,5 +1,34 @@
-.idea/
-gen
-out
+# built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+bin/
+gen/
+out/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Eclipse project files
+.classpath
+.project
+.settings
+.settings/
+
+# IntelliJ project files
 *.iml
-*~
+.idea
+.idea/
+
+# MAC OS Finder files
+.DS_Store
+
+# Generated asset files
+._*
