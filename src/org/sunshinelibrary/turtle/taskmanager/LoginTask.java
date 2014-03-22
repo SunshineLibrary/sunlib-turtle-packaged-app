@@ -81,7 +81,7 @@ public class LoginTask extends AsyncTask<Void, Void, User>{
 
                 try {
                     HttpResponse httpResponse = client.execute(httpGet, context);
-                    if(httpResponse.getStatusLine().getStatusCode() >= 200 && httpResponse.getStatusLine().getStatusCode()<300) {
+                    if(httpResponse.getStatusLine().getStatusCode() == 200) {
                         String userString = StreamToString.convertStreamToString(httpResponse.getEntity().getContent());
                         user = new Gson().fromJson(userString, User.class);
                         Logger.i("Turtle Login Task Succeed");

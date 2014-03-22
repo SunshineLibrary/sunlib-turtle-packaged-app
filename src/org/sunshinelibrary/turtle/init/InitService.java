@@ -43,6 +43,11 @@ public class InitService extends Service {
             TurtleManagers.userManager.login(); //尝试携带本地信息去登录
             TurtleManagers.appManager.refresh();//mount完毕所有apps下面的folder
 
+            // 内置 Mixpanel 文件夹，纯离线逻辑，率先进行初始化，以便统计所有事件
+            if (TurtleManagers.appManager.getApp("mixpanel") == null) {
+                initMixpanelApp();
+            }
+
             // 内置 Login webapp, 用于用户初始登录，以便后续下载 wpk
             if (TurtleManagers.appManager.getApp("login") == null) {
                 initLoginApp();
@@ -63,6 +68,14 @@ public class InitService extends Service {
 
         startIntervalAlarm();
         return Service.START_STICKY;
+    }
+
+    private void initMixpanelApp() throws IOException, WebAppException {
+        Logger.i("Prepare install webapp-mixpanel");
+        File tmpFile = File.createTempFile("turtle_", "tmp");
+        FileUtils.copyInputStreamToFile(getAssets().open(Configurations.MIXPANEL_APP_FILE), tmpFile);
+        TurtleManagers.appManager.installApp(tmpFile);
+
     }
 
     private void initLoginApp() throws IOException, WebAppException {

@@ -184,7 +184,7 @@ public class RestletWebService extends Service implements WebService {
                     post.setEntity(new UrlEncodedFormEntity(list));
                     HttpResponse httpResponse = client.execute(post, context);
 
-                    if (httpResponse.getStatusLine().getStatusCode() >= 200 && httpResponse.getStatusLine().getStatusCode()<300) {
+                    if (httpResponse.getStatusLine().getStatusCode() == 200) {
                         HttpEntity httpEntity = httpResponse.getEntity();
                         InputStream inputStream = httpEntity.getContent();
                         httpResponseResult = StreamToString.convertStreamToString(inputStream);

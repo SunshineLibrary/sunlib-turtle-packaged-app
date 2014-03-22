@@ -17,6 +17,7 @@ public class Configurations {
     public static final String TURTLE_SHARED_PREFERENCE = "Turtle";
     public static final String TURTLE_SHARED_PREFERENCE_INIT = "init";
     public static final String LAUNCHER_APP_FILE = "0.zip";
+    public static final String MIXPANEL_APP_FILE = "mixpanel.zip";
     public static final String LOGIN_APP_FILE = "login.zip";
     public static final String storageBase = "/sdcard/.turtle";
     public static final int SYNC_INTERVAL = 30 * 1000;
@@ -26,15 +27,15 @@ public class Configurations {
     /**
      *  Please modify those hosts to your local host address.
      */
-/*    public static String serverHost = "http://192.168.3.100:9461";
-    public static String userDataServerHost = "http://192.168.3.100:9461";
-    public static String mixpanelTracksHost = "http://192.168.3.100:9461";
-    public static String upstreamServer = "http://192.168.3.100:9461";*/
+    public static String serverHost = "http://t.ghxz.cn";
+    public static String userDataServerHost = "http://t.ghxz.cn";
+    public static String mixpanelTracksHost = "http://t.ghxz.cn";
+    public static String upstreamServer = "http://t.ghxz.cn";
 
-    public static String serverHost = "http://192.168.3.51:9461";
+/*    public static String serverHost = "http://192.168.3.51:9461";
     public static String userDataServerHost = "http://192.168.3.51:9461";
     public static String mixpanelTracksHost = "http://192.168.3.51:9461";
-    public static String upstreamServer = "http://192.168.3.51:9461";
+    public static String upstreamServer = "http://192.168.3.51:9461";*/
 
     public static String defaultPackage = "exercise";
     public static int localPort = 9460;
